@@ -33,5 +33,21 @@ services:
       timeout: 3s
       retries: 20
 
+  # Phase 2: rules + tools only, so this runs the test suite on demand:
+  #   docker compose run --rm agent
+  # Phase 3 turns it into the agent API and drops the profile.
+  agent:
+    build: ./services/agent
+    profiles: ["tools"]
+    environment:
+      MOCK_BASE_URL: http://enterprise_mock:8000
+      MOCK_API_KEY: ${MOCK_API_KEY:-dev-mock-key}
+      RULES_PATH: /config/rules.yaml
+    volumes:
+      - ./config:/config:ro
+    depends_on:
+      enterprise_mock:
+        condition: service_healthy
+
 volumes:
   pgdata:

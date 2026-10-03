@@ -1,0 +1,6 @@
+# Business-rule thresholds for the FieldOps agent. Read by services/agent/app/rules.py.
+# Rules never go into prompts; change behaviour here, not in the LLM.
+sla_hours: {gold: 4, silver: 24, bronze: 72}
+po_approval_threshold_lkr: 100000
+repeat_failure_window_days: 90
+diagnosis_min_confidence: 0.6

@@ -4,7 +4,7 @@ An autonomous AI agent that runs CoolTech Services' field service process (from 
 complaint to a booked technician) across mock CRM, ERP and FSM systems. It is built in seven phases,
 from mock enterprise systems up to an MCP server and dashboard.
 
-**Status:** Phase 1 (foundation and mock enterprise systems) is complete.
+**Status:** Phases 1–2 are complete: mock enterprise systems, plus the agent's business rules and tools.
 
 ## What exists so far
 
@@ -15,6 +15,8 @@ from mock enterprise systems up to an MCP server and dashboard.
 | Migrations | `services/enterprise_mock/alembic/` | Run automatically when the container starts |
 | Seed data | `services/enterprise_mock/app/seed.py` | Deterministic: same reference date → same data |
 | Tests | `services/enterprise_mock/tests/` | Run against a real Postgres test database (`fieldops_test`) |
+| Business rules | `services/agent/app/rules.py` | Pure functions; every threshold read from `config/rules.yaml` |
+| Enterprise tools | `services/agent/app/tools.py` | Typed httpx wrappers returning `{ok, data, error}`, with timeouts and retries |
 
 ## How to run
 
@@ -53,6 +55,22 @@ docker compose run --rm enterprise_mock sh -c "ruff check . && ruff format --che
 ```
 
 The tests create and migrate a separate `fieldops_test` database, so they never touch your dev data.
+
+### Agent rules and tools (Phase 2)
+
+```bash
+docker compose build agent
+docker compose run --rm agent pytest
+docker compose run --rm agent sh -c "ruff check . && ruff format --check ."
+```
+
+The agent tests need no LLM key. `test_rules.py` and `test_tools.py` run fully offline; the tools are
+tested against a fake API. `test_tools_live.py` makes read-only calls against the running mock and is
+skipped if the mock is down. The `agent` service sits behind the `tools` Compose profile, so
+`docker compose up` doesn't start it until Phase 3 gives it an API.
+
+To change a business rule threshold, edit `config/rules.yaml`. The container mounts it, so no rebuild is
+needed.
 
 ### Reseed or reset
 
