@@ -1,0 +1,14 @@
+# Bronze; GSK-CC75 in stock.
+id: citygrocers-chiller2-door-gasket
+group: in_stock
+ticket:
+  customer_email: admin@citygrocers.lk
+  text: "The door on Chiller #2 at Rajagiriya is not sealing properly. There is condensation around the door and cold air is leaking out."
+expect:
+  asset_id: CHL-1007
+  fault_code: DOOR_GASKET
+  priority: P3
+  po_created: false
+  technician_id: TECH-02
+  final_status: scheduled
+approval_decision: null

@@ -1,0 +1,15 @@
+# Gold 4 h SLA, but Kurunegala's only technician is fully booked until 7 Oct for a 4 h job.
+id: kfoodcity-freezer2-no-tech-in-sla
+group: no_technician_in_sla
+ticket:
+  customer_email: facilities@kfoodcity.lk
+  text: "Freezer #2 at Wariyapola has stopped cooling completely. Loud clicking from the compressor, it does not start and the temperature is rising fast."
+expect:
+  asset_id: FRZ-1037
+  fault_code: COMP_FAIL
+  priority: P1
+  po_created: false
+  technician_id: TECH-08
+  sla_risk: true
+  final_status: scheduled
+approval_decision: null

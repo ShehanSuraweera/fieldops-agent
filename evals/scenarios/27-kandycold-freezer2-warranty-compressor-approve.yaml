@@ -1,0 +1,16 @@
+# Under warranty and over the threshold: CMP-FL LKR 121,800 warranty claim, approved.
+id: kandycold-freezer2-warranty-compressor-approve
+group: warranty_claim
+ticket:
+  customer_email: ops@kandycold.lk
+  text: "Freezer #2 at Katugastota stopped cooling. The compressor will not start, it just clicks every few seconds and the cabinet is warming up."
+expect:
+  asset_id: FRZ-1020
+  fault_code: COMP_FAIL
+  priority: P2
+  po_created: true
+  warranty_claim: true
+  approval_required: true
+  technician_id: TECH-04
+  final_status: scheduled
+approval_decision: approve

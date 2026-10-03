@@ -10,6 +10,7 @@ TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL", "postgresql+psycopg://fieldops:fieldops@localhost:5432/fieldops_test"
 )
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+os.environ["MOCK_ADMIN_ENABLED"] = "true"
 
 import pytest
 from alembic import command

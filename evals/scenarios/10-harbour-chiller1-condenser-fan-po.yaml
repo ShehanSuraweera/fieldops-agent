@@ -1,0 +1,16 @@
+# FAN-COND-L out of stock: VEN-01 LKR 29,500; no vendor meets the 24 h SLA.
+id: harbour-chiller1-condenser-fan-po
+group: po_under_threshold
+ticket:
+  customer_email: service@harbourfoods.lk
+  text: "Chiller #1 at Colombo 7: the unit is running very hot at the back, warm air is not being blown out, there is a rattling noise behind it and the compressor keeps switching on and off."
+expect:
+  asset_id: CHL-1010
+  fault_code: COND_FAN
+  priority: P2
+  po_created: true
+  approval_required: false
+  technician_id: TECH-01
+  final_status: scheduled
+  sla_risk: true
+approval_decision: null

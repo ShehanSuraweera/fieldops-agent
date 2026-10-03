@@ -1,0 +1,14 @@
+# Silver, Galle; SNS-NTC in stock.
+id: southernsuper-chiller1-temp-sensor
+group: in_stock
+ticket:
+  customer_email: ops@southernsuper.lk
+  text: "Chiller #1 at Galle Fort: the display shows the wrong temperature and the temperature alarm keeps going off, even though the products feel properly cold. The readings jump around."
+expect:
+  asset_id: CHL-1026
+  fault_code: TEMP_SENSOR
+  priority: P2
+  po_created: false
+  technician_id: TECH-07
+  final_status: scheduled
+approval_decision: null

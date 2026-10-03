@@ -1,0 +1,11 @@
+# Sender is not a customer: hand over to a coordinator, no ticket.
+id: unknown-sender
+group: unknown_customer
+ticket:
+  customer_email: owner@newcornershop.lk
+  text: "Hi, our display freezer stopped working yesterday. Can you send someone?"
+expect:
+  asset_id: null
+  po_created: false
+  final_status: needs_human
+approval_decision: null

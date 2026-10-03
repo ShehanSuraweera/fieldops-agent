@@ -1,0 +1,13 @@
+# No concrete symptom: inspection visit.
+id: southernsuper-chiller2-strange
+group: low_confidence
+ticket:
+  customer_email: ops@southernsuper.lk
+  text: "Chiller #2 at Galle Fort is behaving strangely now and then. Could someone take a look when possible?"
+expect:
+  asset_id: CHL-1027
+  inspection: true
+  priority: P2
+  po_created: false
+  final_status: scheduled
+approval_decision: null

@@ -2,6 +2,7 @@
 
 from fastapi import Depends, FastAPI
 
+from app.admin import router as admin_router
 from app.crm.router import router as crm_router
 from app.erp.router import router as erp_router
 from app.errors import ERROR_RESPONSES, register_error_handlers
@@ -23,6 +24,7 @@ for prefix, router, tag in (
     ("/crm", crm_router, "CRM"),
     ("/fsm", fsm_router, "FSM"),
     ("/erp", erp_router, "ERP"),
+    ("/admin", admin_router, "Admin"),
 ):
     app.include_router(
         router,

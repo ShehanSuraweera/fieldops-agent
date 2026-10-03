@@ -143,6 +143,7 @@ def build_summary(state: TicketState) -> dict[str, Any]:
         "po_id": po.get("id"),
         "po_status": po.get("status"),
         "po_total_lkr": po.get("total_lkr"),
+        "warranty_claim": po.get("warranty_claim"),
         "approval_required": bool(approval.get("required")),
         "approval_decision": approval.get("decision"),
         "work_order_id": work_order.get("id"),

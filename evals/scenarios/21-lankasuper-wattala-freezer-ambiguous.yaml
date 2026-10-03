@@ -1,0 +1,11 @@
+# Two freezers at Wattala (Freezer #1 and #2); 'the freezer' does not say which.
+id: lankasuper-wattala-freezer-ambiguous
+group: ambiguous_asset
+ticket:
+  customer_email: facilities@lankasuper.lk
+  text: "Our freezer at the Wattala store has stopped cooling."
+expect:
+  asset_id: null
+  po_created: false
+  final_status: needs_info
+approval_decision: null

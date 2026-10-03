@@ -1,0 +1,15 @@
+# CMP-CC from VEN-01 LKR 228,800 rejected -> inspection visit.
+id: southernsuper-chiller1-compressor-reject
+group: po_over_threshold
+ticket:
+  customer_email: ops@southernsuper.lk
+  text: "Chiller #1 at Galle Fort is not cooling at all. The compressor is not starting, there is a loud clicking from it and the temperature is rising."
+expect:
+  asset_id: CHL-1026
+  fault_code: COMP_FAIL
+  priority: P2
+  po_created: true
+  approval_required: true
+  technician_id: TECH-06
+  final_status: needs_manual_procurement
+approval_decision: reject

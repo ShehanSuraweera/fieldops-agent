@@ -1,0 +1,16 @@
+# Under warranty: PO for FAN-EVAP-L (VEN-01 LKR 24,800) flagged as a warranty claim.
+id: citygrocers-chiller1-warranty-evap-fan
+group: warranty_claim
+ticket:
+  customer_email: admin@citygrocers.lk
+  text: "Chiller #1 at Rajagiriya is cooling unevenly. No airflow inside, the inside fan is noisy and frost is building up on the coil."
+expect:
+  asset_id: CHL-1006
+  fault_code: EVAP_FAN
+  priority: P3
+  po_created: true
+  warranty_claim: true
+  approval_required: false
+  technician_id: TECH-03
+  final_status: scheduled
+approval_decision: null

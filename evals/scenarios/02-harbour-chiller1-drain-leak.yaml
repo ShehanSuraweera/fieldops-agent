@@ -1,0 +1,14 @@
+# Silver; HTR-DRAIN in stock.
+id: harbour-chiller1-drain-leak
+group: in_stock
+ticket:
+  customer_email: service@harbourfoods.lk
+  text: "Chiller #1 at Colombo 7 is leaking water onto the shop floor. Water is pooling inside the cabinet and there is ice in the drain pan."
+expect:
+  asset_id: CHL-1010
+  fault_code: DRAIN_BLOCK
+  priority: P2
+  po_created: false
+  technician_id: TECH-02
+  final_status: scheduled
+approval_decision: null

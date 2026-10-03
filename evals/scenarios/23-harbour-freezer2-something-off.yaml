@@ -1,0 +1,13 @@
+# No concrete symptom: inspection visit.
+id: harbour-freezer2-something-off
+group: low_confidence
+ticket:
+  customer_email: service@harbourfoods.lk
+  text: "Freezer #2 at Colombo 7 just doesn't seem right lately. Staff say something is off with it."
+expect:
+  asset_id: FRZ-1009
+  inspection: true
+  priority: P2
+  po_created: false
+  final_status: scheduled
+approval_decision: null

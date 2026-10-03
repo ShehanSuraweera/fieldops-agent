@@ -1,0 +1,14 @@
+# Silver; CMP-PM in stock.
+id: southernsuper-chiller2-compressor
+group: in_stock
+ticket:
+  customer_email: ops@southernsuper.lk
+  text: "Chiller #2 at Galle Fort is not cooling at all. The compressor makes a loud clicking noise and will not start, and the temperature is rising."
+expect:
+  asset_id: CHL-1027
+  fault_code: COMP_FAIL
+  priority: P2
+  po_created: false
+  technician_id: TECH-06
+  final_status: scheduled
+approval_decision: null

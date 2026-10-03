@@ -1,0 +1,14 @@
+# Silver, Kandy; HTR-DEF-FL in stock.
+id: kandycold-freezer1-defrost-heater
+group: in_stock
+ticket:
+  customer_email: ops@kandycold.lk
+  text: "Freezer #1 at Katugastota has heavy ice build-up on the coils. The defrost cycle runs but does not clear the ice, and the freezer is slowly warming up."
+expect:
+  asset_id: FRZ-1019
+  fault_code: DEFROST_HEATER
+  priority: P2
+  po_created: false
+  technician_id: TECH-05
+  final_status: scheduled
+approval_decision: null

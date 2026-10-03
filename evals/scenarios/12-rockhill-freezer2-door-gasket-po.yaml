@@ -1,0 +1,15 @@
+# GSK-AP900 out of stock: VEN-01 LKR 8,100; Kurunegala's only technician is busy until 6 Oct.
+id: rockhill-freezer2-door-gasket-po
+group: po_under_threshold
+ticket:
+  customer_email: info@rockhillgrocers.lk
+  text: "The door of Freezer #2 at Dambulla does not seal any more. There is frost near the door and condensation around it."
+expect:
+  asset_id: FRZ-1045
+  fault_code: DOOR_GASKET
+  priority: P3
+  po_created: true
+  approval_required: false
+  technician_id: TECH-08
+  final_status: scheduled
+approval_decision: null

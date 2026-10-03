@@ -1,0 +1,11 @@
+# Two 'Freezer #1' units (Katugastota and Kandy City) and no site given.
+id: peradeniya-freezer1-ambiguous
+group: ambiguous_asset
+ticket:
+  customer_email: info@peradeniyafresh.lk
+  text: "Freezer #1 is leaking water all over the floor."
+expect:
+  asset_id: null
+  po_created: false
+  final_status: needs_info
+approval_decision: null

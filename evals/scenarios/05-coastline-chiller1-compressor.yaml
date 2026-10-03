@@ -1,0 +1,14 @@
+# Bronze; CMP-PM in stock; 14:00 slot.
+id: coastline-chiller1-compressor
+group: in_stock
+ticket:
+  customer_email: admin@coastlinemart.lk
+  text: "Chiller #1 at Karapitiya has stopped cooling. There is a loud clicking from the compressor, it is not starting, and the temperature keeps rising."
+expect:
+  asset_id: CHL-1033
+  fault_code: COMP_FAIL
+  priority: P3
+  po_created: false
+  technician_id: TECH-06
+  final_status: scheduled
+approval_decision: null

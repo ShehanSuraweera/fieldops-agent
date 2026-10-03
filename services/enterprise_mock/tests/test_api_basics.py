@@ -65,3 +65,24 @@ def test_docs_list_every_endpoint(anon_client: TestClient) -> None:
     customers = spec["paths"]["/crm/customers"]["get"]
     assert customers["security"] == [{"APIKeyHeader": []}]
     assert "ErrorResponse" in str(customers["responses"]["404"])
+
+
+def test_admin_reseed_resets_data_and_sequences(client: TestClient) -> None:
+    client.post("/crm/tickets", json={"customer_id": "CUST-001", "description": "x"})
+    client.post("/erp/reservations", json={"sku": "CMP-AP", "qty": 1, "ticket_id": "TKT-000001"})
+    response = client.post("/admin/reseed", json={"today": "2026-10-01"})
+    assert response.json() == {"seeded_for": "2026-10-01"}
+    assert client.get("/erp/parts/CMP-AP").json()["stock_qty"] == 2
+    assert_error(client.get("/crm/tickets/TKT-000001"), 404, "not_found")
+    ticket = client.post("/crm/tickets", json={"customer_id": "CUST-001", "description": "y"}).json()
+    assert ticket["id"] == "TKT-000001"
+
+
+def test_admin_reseed_needs_key_and_flag(anon_client: TestClient, client: TestClient, monkeypatch) -> None:
+    import dataclasses
+
+    from app.config import settings
+
+    assert_error(anon_client.post("/admin/reseed", json={}), 401, "unauthorized")
+    monkeypatch.setattr("app.admin.settings", dataclasses.replace(settings, admin_enabled=False))
+    assert_error(client.post("/admin/reseed", json={}), 403, "admin_disabled")

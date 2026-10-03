@@ -4,9 +4,12 @@ An autonomous AI agent that runs CoolTech Services' field service process (from 
 complaint to a booked technician) across mock CRM, ERP and FSM systems. It is built in seven phases,
 from mock enterprise systems up to an MCP server and dashboard.
 
-**Status:** Phases 1–4 are complete: mock enterprise systems, business rules and tools, the agent graph
-with its API and CLI, and manager approval of large purchase orders (runs pause, survive restarts and
-resume).
+**Status:** Phases 1–5 are complete:
+- mock enterprise systems
+- business rules and tools
+- the agent graph, with its API and CLI
+- manager approval of large purchase orders (runs pause, survive restarts and resume)
+- 30 end-to-end eval scenarios, with CI
 
 ## What exists so far
 
@@ -105,6 +108,48 @@ To switch provider, set `LLM_PROVIDER=openai` or `groq` (and optionally `LLM_MOD
 provider's key in `.env`. Then run `docker compose up -d` to restart the agent with the new settings.
 Without a key, a run ends as `needs_human` with the reason recorded.
 
+### Run the evals
+
+30 scenarios in `evals/scenarios/*.yaml` run end to end against the live stack and a real LLM. Each
+scenario:
+
+1. reseeds the mock systems for a fixed date (2026-10-01; the agent clock is pinned to 09:00)
+2. sends the complaint to `POST /runs`
+3. answers any approval pause with the scenario's `approval_decision`
+4. compares the expected fields (asset, fault code, priority, PO, approval, technician, final status,
+   and where relevant inspection, warranty claim and SLA risk)
+
+```bash
+docker compose up -d --wait
+docker compose --profile evals run --rm evals --delay 10                  # all 30; --delay eases free-tier rate limits
+docker compose --profile evals run --rm evals --only demo-freshmart       # one scenario (id prefix)
+docker compose --profile evals run --rm evals --group po_over_threshold   # one group
+```
+
+The runner writes `evals/results/latest.md` and `latest.json`, plus a timestamped copy. They include:
+
+- the **overall pass rate**: the share of scenarios where every expected field is right (target ≥ 85%)
+- the pass rate per field and per group
+- tool-call errors, average latency and average tokens per run
+- every failure, with the expected and actual values
+
+`--min-pass-rate 0.85` makes the command fail below the target.
+
+How the expected values were set: the deterministic ones (priority, PO and approval, technician, status,
+warranty, SLA risk) come from the 2026-10-01 seed and the rules in `config/rules.yaml`. Each one was
+checked by hand. The complaints describe specific symptoms from the fault catalog, so the fault code is
+clear-cut. Vague complaints should become inspection visits.
+
+### CI
+
+`.github/workflows/ci.yml`:
+
+- **Every push and PR:** ruff, plus the mock, agent and eval-runner test suites. They run on Python 3.12
+  against a Postgres service container and need no LLM key.
+- **Manual "Run workflow":** starts the full stack with Docker Compose, runs the 30 evals with the
+  `GEMINI_API_KEY` repository secret, fails below the minimum pass rate (default 85%) and uploads the
+  report as an artifact. Add the secret under Settings → Secrets and variables → Actions.
+
 ### Check the mock data directly
 
 ```bash
@@ -123,6 +168,7 @@ newest history record is `COMP_FAIL`, 60 days before the seed date, done by `TEC
 docker compose build
 docker compose run --rm enterprise_mock pytest
 docker compose run --rm agent pytest
+docker compose --profile evals run --rm --no-deps --entrypoint pytest evals test_run_evals.py
 docker compose run --rm enterprise_mock sh -c "ruff check . && ruff format --check ."
 docker compose run --rm agent sh -c "ruff check . && ruff format --check ."
 ```

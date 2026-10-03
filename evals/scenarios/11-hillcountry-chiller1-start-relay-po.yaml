@@ -1,0 +1,15 @@
+# Gold, unit down; RLY-START reserved, CAP-START ordered from VEN-02 (LKR 3,800).
+id: hillcountry-chiller1-start-relay-po
+group: po_under_threshold
+ticket:
+  customer_email: ops@hillcountrymart.lk
+  text: "Chiller #1 at Kandy City has stopped cooling. The compressor hums but does not start and the breaker keeps tripping."
+expect:
+  asset_id: CHL-1011
+  fault_code: START_RELAY
+  priority: P1
+  po_created: true
+  approval_required: false
+  technician_id: TECH-05
+  final_status: scheduled
+approval_decision: null

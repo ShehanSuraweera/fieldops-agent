@@ -1,0 +1,15 @@
+# FAN-EVAP-L out of stock: VEN-01 LKR 24,800, auto-approved; visit after delivery.
+id: citygrocers-chiller2-evap-fan-po
+group: po_under_threshold
+ticket:
+  customer_email: admin@citygrocers.lk
+  text: "Chiller #2 at Rajagiriya is cooling unevenly. There is no airflow inside the cabinet, the fan inside is noisy and frost is building up on the coil."
+expect:
+  asset_id: CHL-1007
+  fault_code: EVAP_FAN
+  priority: P3
+  po_created: true
+  approval_required: false
+  technician_id: TECH-02
+  final_status: scheduled
+approval_decision: null

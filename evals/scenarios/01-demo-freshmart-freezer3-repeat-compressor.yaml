@@ -1,0 +1,15 @@
+# Spec demo: gold, asset down, repeat failure; TECH-02 did the last repair; CMP-AP in stock.
+id: demo-freshmart-freezer3-repeat-compressor
+group: in_stock
+ticket:
+  customer_email: ops@freshmart.lk
+  text: "Freezer #3 at our Colombo 7 branch stopped cooling again this morning."
+expect:
+  asset_id: FRZ-1043
+  fault_code: COMP_FAIL
+  priority: P1
+  po_created: false
+  approval_required: false
+  technician_id: TECH-02
+  final_status: scheduled
+approval_decision: null

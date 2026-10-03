@@ -1,0 +1,16 @@
+# Gold, unit down; CTL-BRD-B LKR 119,700 approved; 2-day delivery misses the 4 h SLA.
+id: freshmart-chiller1-control-board-approve
+group: po_over_threshold
+ticket:
+  customer_email: ops@freshmart.lk
+  text: "Chiller #1 at Nugegoda has stopped working. The display is blank and the unit is completely unresponsive."
+expect:
+  asset_id: CHL-1044
+  fault_code: CTRL_BOARD
+  priority: P1
+  po_created: true
+  approval_required: true
+  technician_id: TECH-01
+  final_status: scheduled
+  sla_risk: true
+approval_decision: approve

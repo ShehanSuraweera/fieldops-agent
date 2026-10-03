@@ -1,0 +1,11 @@
+# Two 'Chiller #1' units (Wariyapola and Kurunegala Town).
+id: dambulla-chiller1-ambiguous
+group: ambiguous_asset
+ticket:
+  customer_email: ops@dambullaproduce.lk
+  text: "Chiller #1 has stopped cooling, please send someone."
+expect:
+  asset_id: null
+  po_created: false
+  final_status: needs_info
+approval_decision: null

@@ -1,0 +1,1457 @@
+{
+  "started_at": "2026-10-03T06:46:02Z",
+  "seed_date": "2026-10-01",
+  "run_clock": "2026-10-01T09:00:00+05:30",
+  "llm": "gemini/gemini-3.5-flash-lite",
+  "scenarios": 30,
+  "passed": 30,
+  "overall_pass_rate": 1.0,
+  "field_accuracy": 1.0,
+  "per_field": {
+    "approval_required": {
+      "checked": 14,
+      "passed": 14,
+      "pass_rate": 1.0
+    },
+    "asset_id": {
+      "checked": 30,
+      "passed": 30,
+      "pass_rate": 1.0
+    },
+    "fault_code": {
+      "checked": 23,
+      "passed": 23,
+      "pass_rate": 1.0
+    },
+    "final_status": {
+      "checked": 30,
+      "passed": 30,
+      "pass_rate": 1.0
+    },
+    "inspection": {
+      "checked": 3,
+      "passed": 3,
+      "pass_rate": 1.0
+    },
+    "po_created": {
+      "checked": 30,
+      "passed": 30,
+      "pass_rate": 1.0
+    },
+    "priority": {
+      "checked": 25,
+      "passed": 25,
+      "pass_rate": 1.0
+    },
+    "sla_risk": {
+      "checked": 4,
+      "passed": 4,
+      "pass_rate": 1.0
+    },
+    "technician_id": {
+      "checked": 23,
+      "passed": 23,
+      "pass_rate": 1.0
+    },
+    "warranty_claim": {
+      "checked": 3,
+      "passed": 3,
+      "pass_rate": 1.0
+    }
+  },
+  "per_group": {
+    "in_stock": {
+      "scenarios": 8,
+      "passed": 8,
+      "pass_rate": 1.0
+    },
+    "po_under_threshold": {
+      "scenarios": 5,
+      "passed": 5,
+      "pass_rate": 1.0
+    },
+    "po_over_threshold": {
+      "scenarios": 5,
+      "passed": 5,
+      "pass_rate": 1.0
+    },
+    "ambiguous_asset": {
+      "scenarios": 3,
+      "passed": 3,
+      "pass_rate": 1.0
+    },
+    "low_confidence": {
+      "scenarios": 3,
+      "passed": 3,
+      "pass_rate": 1.0
+    },
+    "warranty_claim": {
+      "scenarios": 3,
+      "passed": 3,
+      "pass_rate": 1.0
+    },
+    "no_technician_in_sla": {
+      "scenarios": 2,
+      "passed": 2,
+      "pass_rate": 1.0
+    },
+    "unknown_customer": {
+      "scenarios": 1,
+      "passed": 1,
+      "pass_rate": 1.0
+    }
+  },
+  "tool_calls": 467,
+  "tool_call_errors": 1,
+  "avg_latency_s": 3.68,
+  "avg_tokens_per_run": 1896,
+  "results": [
+    {
+      "id": "demo-freshmart-freezer3-repeat-compressor",
+      "group": "in_stock",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1043",
+          "actual": "FRZ-1043",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COMP_FAIL",
+          "actual": "COMP_FAIL",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P1",
+          "actual": "P1",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-02",
+          "actual": "TECH-02",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_03a8c22bbd1f",
+      "status": "scheduled",
+      "latency_s": 4.27,
+      "tokens": 2094,
+      "tool_calls": 17,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "harbour-chiller1-drain-leak",
+      "group": "in_stock",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1010",
+          "actual": "CHL-1010",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "DRAIN_BLOCK",
+          "actual": "DRAIN_BLOCK",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-02",
+          "actual": "TECH-02",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_56f2674e04ef",
+      "status": "scheduled",
+      "latency_s": 4.08,
+      "tokens": 2099,
+      "tool_calls": 14,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "citygrocers-chiller2-door-gasket",
+      "group": "in_stock",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1007",
+          "actual": "CHL-1007",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "DOOR_GASKET",
+          "actual": "DOOR_GASKET",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P3",
+          "actual": "P3",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-02",
+          "actual": "TECH-02",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_562d17f29416",
+      "status": "scheduled",
+      "latency_s": 4.07,
+      "tokens": 2004,
+      "tool_calls": 16,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "southernsuper-chiller1-temp-sensor",
+      "group": "in_stock",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1026",
+          "actual": "CHL-1026",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "TEMP_SENSOR",
+          "actual": "TEMP_SENSOR",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-07",
+          "actual": "TECH-07",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_f0879078f1b7",
+      "status": "scheduled",
+      "latency_s": 4.08,
+      "tokens": 2031,
+      "tool_calls": 14,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "coastline-chiller1-compressor",
+      "group": "in_stock",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1033",
+          "actual": "CHL-1033",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COMP_FAIL",
+          "actual": "COMP_FAIL",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P3",
+          "actual": "P3",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-06",
+          "actual": "TECH-06",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_203b497cc0fe",
+      "status": "scheduled",
+      "latency_s": 4.07,
+      "tokens": 1970,
+      "tool_calls": 17,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "lankasuper-freezer1-control-board",
+      "group": "in_stock",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1001",
+          "actual": "FRZ-1001",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "CTRL_BOARD",
+          "actual": "CTRL_BOARD",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P1",
+          "actual": "P1",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-01",
+          "actual": "TECH-01",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_ddadbb35ee8e",
+      "status": "scheduled",
+      "latency_s": 3.59,
+      "tokens": 2193,
+      "tool_calls": 15,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "southernsuper-chiller2-compressor",
+      "group": "in_stock",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1027",
+          "actual": "CHL-1027",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COMP_FAIL",
+          "actual": "COMP_FAIL",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-06",
+          "actual": "TECH-06",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_c9ee15c29108",
+      "status": "scheduled",
+      "latency_s": 3.56,
+      "tokens": 2139,
+      "tool_calls": 17,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "kandycold-freezer1-defrost-heater",
+      "group": "in_stock",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1019",
+          "actual": "FRZ-1019",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "DEFROST_HEATER",
+          "actual": "DEFROST_HEATER",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-05",
+          "actual": "TECH-05",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_d045e32d5aa4",
+      "status": "scheduled",
+      "latency_s": 3.57,
+      "tokens": 2090,
+      "tool_calls": 15,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "citygrocers-chiller2-evap-fan-po",
+      "group": "po_under_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1007",
+          "actual": "CHL-1007",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "EVAP_FAN",
+          "actual": "EVAP_FAN",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P3",
+          "actual": "P3",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-02",
+          "actual": "TECH-02",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_834eef354895",
+      "status": "scheduled",
+      "latency_s": 4.09,
+      "tokens": 2068,
+      "tool_calls": 18,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "harbour-chiller1-condenser-fan-po",
+      "group": "po_under_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1010",
+          "actual": "CHL-1010",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COND_FAN",
+          "actual": "COND_FAN",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-01",
+          "actual": "TECH-01",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        },
+        "sla_risk": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        }
+      },
+      "run_id": "run_c66f6ec95b49",
+      "status": "scheduled",
+      "latency_s": 3.07,
+      "tokens": 2157,
+      "tool_calls": 18,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "hillcountry-chiller1-start-relay-po",
+      "group": "po_under_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1011",
+          "actual": "CHL-1011",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "START_RELAY",
+          "actual": "START_RELAY",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P1",
+          "actual": "P1",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-05",
+          "actual": "TECH-05",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_498de0869f74",
+      "status": "scheduled",
+      "latency_s": 4.08,
+      "tokens": 2099,
+      "tool_calls": 20,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "rockhill-freezer2-door-gasket-po",
+      "group": "po_under_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1045",
+          "actual": "FRZ-1045",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "DOOR_GASKET",
+          "actual": "DOOR_GASKET",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P3",
+          "actual": "P3",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-08",
+          "actual": "TECH-08",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_e24489052943",
+      "status": "scheduled",
+      "latency_s": 3.57,
+      "tokens": 2095,
+      "tool_calls": 19,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "templeroad-freezer1-refrigerant-leak-po",
+      "group": "po_under_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1014",
+          "actual": "FRZ-1014",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "REF_LEAK",
+          "actual": "REF_LEAK",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-04",
+          "actual": "TECH-04",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_5eefff9f5e45",
+      "status": "scheduled",
+      "latency_s": 3.57,
+      "tokens": 2264,
+      "tool_calls": 21,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "kandycold-freezer1-compressor-approve",
+      "group": "po_over_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1019",
+          "actual": "FRZ-1019",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COMP_FAIL",
+          "actual": "COMP_FAIL",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-04",
+          "actual": "TECH-04",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_67b164404232",
+      "status": "scheduled",
+      "latency_s": 4.1,
+      "tokens": 2042,
+      "tool_calls": 22,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "peradeniya-freezer1-kandycity-compressor-reject",
+      "group": "po_over_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1018",
+          "actual": "FRZ-1018",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COMP_FAIL",
+          "actual": "COMP_FAIL",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P3",
+          "actual": "P3",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-04",
+          "actual": "TECH-04",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "needs_manual_procurement",
+          "actual": "needs_manual_procurement",
+          "ok": true
+        }
+      },
+      "run_id": "run_6e29a3076448",
+      "status": "needs_manual_procurement",
+      "latency_s": 4.1,
+      "tokens": 2269,
+      "tool_calls": 22,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "citygrocers-chiller2-control-board-approve",
+      "group": "po_over_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1007",
+          "actual": "CHL-1007",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "CTRL_BOARD",
+          "actual": "CTRL_BOARD",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P3",
+          "actual": "P3",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-01",
+          "actual": "TECH-01",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_b9584fd27735",
+      "status": "scheduled",
+      "latency_s": 4.09,
+      "tokens": 2010,
+      "tool_calls": 20,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "southernsuper-chiller1-compressor-reject",
+      "group": "po_over_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1026",
+          "actual": "CHL-1026",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COMP_FAIL",
+          "actual": "COMP_FAIL",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-06",
+          "actual": "TECH-06",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "needs_manual_procurement",
+          "actual": "needs_manual_procurement",
+          "ok": true
+        }
+      },
+      "run_id": "run_298b14029ede",
+      "status": "needs_manual_procurement",
+      "latency_s": 4.62,
+      "tokens": 2060,
+      "tool_calls": 22,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "freshmart-chiller1-control-board-approve",
+      "group": "po_over_threshold",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1044",
+          "actual": "CHL-1044",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "CTRL_BOARD",
+          "actual": "CTRL_BOARD",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P1",
+          "actual": "P1",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-01",
+          "actual": "TECH-01",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        },
+        "sla_risk": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        }
+      },
+      "run_id": "run_4fac90e146a5",
+      "status": "scheduled",
+      "latency_s": 4.09,
+      "tokens": 1938,
+      "tool_calls": 20,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "peradeniya-freezer1-ambiguous",
+      "group": "ambiguous_asset",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": null,
+          "actual": null,
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "needs_info",
+          "actual": "needs_info",
+          "ok": true
+        }
+      },
+      "run_id": "run_c4ad56ae8b4a",
+      "status": "needs_info",
+      "latency_s": 2.55,
+      "tokens": 828,
+      "tool_calls": 5,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "dambulla-chiller1-ambiguous",
+      "group": "ambiguous_asset",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": null,
+          "actual": null,
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "needs_info",
+          "actual": "needs_info",
+          "ok": true
+        }
+      },
+      "run_id": "run_89068b577259",
+      "status": "needs_info",
+      "latency_s": 2.55,
+      "tokens": 795,
+      "tool_calls": 5,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "lankasuper-wattala-freezer-ambiguous",
+      "group": "ambiguous_asset",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": null,
+          "actual": null,
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "needs_info",
+          "actual": "needs_info",
+          "ok": true
+        }
+      },
+      "run_id": "run_aabc32fe78d2",
+      "status": "needs_info",
+      "latency_s": 2.54,
+      "tokens": 808,
+      "tool_calls": 5,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "freshmart-chiller1-odd-noise",
+      "group": "low_confidence",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1044",
+          "actual": "CHL-1044",
+          "ok": true
+        },
+        "inspection": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_bd883abd2eb5",
+      "status": "scheduled",
+      "latency_s": 3.05,
+      "tokens": 1896,
+      "tool_calls": 11,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "harbour-freezer2-something-off",
+      "group": "low_confidence",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1009",
+          "actual": "FRZ-1009",
+          "ok": true
+        },
+        "inspection": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_147dd7dbf9ba",
+      "status": "scheduled",
+      "latency_s": 3.05,
+      "tokens": 2146,
+      "tool_calls": 11,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "southernsuper-chiller2-strange",
+      "group": "low_confidence",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1027",
+          "actual": "CHL-1027",
+          "ok": true
+        },
+        "inspection": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_78a873331241",
+      "status": "scheduled",
+      "latency_s": 3.56,
+      "tokens": 2021,
+      "tool_calls": 11,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "citygrocers-chiller1-warranty-evap-fan",
+      "group": "warranty_claim",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1006",
+          "actual": "CHL-1006",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "EVAP_FAN",
+          "actual": "EVAP_FAN",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P3",
+          "actual": "P3",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "warranty_claim": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-03",
+          "actual": "TECH-03",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_7e9ee78c2bb5",
+      "status": "scheduled",
+      "latency_s": 3.57,
+      "tokens": 2194,
+      "tool_calls": 18,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "greenbasket-chiller1-warranty-condenser-fan",
+      "group": "warranty_claim",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "CHL-1004",
+          "actual": "CHL-1004",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COND_FAN",
+          "actual": "COND_FAN",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "warranty_claim": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-02",
+          "actual": "TECH-02",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_498589809154",
+      "status": "scheduled",
+      "latency_s": 4.1,
+      "tokens": 2120,
+      "tool_calls": 18,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "kandycold-freezer2-warranty-compressor-approve",
+      "group": "warranty_claim",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1020",
+          "actual": "FRZ-1020",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COMP_FAIL",
+          "actual": "COMP_FAIL",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "warranty_claim": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "approval_required": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-04",
+          "actual": "TECH-04",
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_3be65d858809",
+      "status": "scheduled",
+      "latency_s": 5.12,
+      "tokens": 2121,
+      "tool_calls": 22,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "kfoodcity-freezer2-no-tech-in-sla",
+      "group": "no_technician_in_sla",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1037",
+          "actual": "FRZ-1037",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "COMP_FAIL",
+          "actual": "COMP_FAIL",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P1",
+          "actual": "P1",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-08",
+          "actual": "TECH-08",
+          "ok": true
+        },
+        "sla_risk": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_9daf950139ae",
+      "status": "scheduled",
+      "latency_s": 4.57,
+      "tokens": 2223,
+      "tool_calls": 17,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "wayamba-freezer1-no-tech-in-sla",
+      "group": "no_technician_in_sla",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": "FRZ-1034",
+          "actual": "FRZ-1034",
+          "ok": true
+        },
+        "fault_code": {
+          "expected": "DOOR_GASKET",
+          "actual": "DOOR_GASKET",
+          "ok": true
+        },
+        "priority": {
+          "expected": "P2",
+          "actual": "P2",
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "technician_id": {
+          "expected": "TECH-08",
+          "actual": "TECH-08",
+          "ok": true
+        },
+        "sla_risk": {
+          "expected": true,
+          "actual": true,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "scheduled",
+          "actual": "scheduled",
+          "ok": true
+        }
+      },
+      "run_id": "run_f662ff6dcc86",
+      "status": "scheduled",
+      "latency_s": 4.57,
+      "tokens": 2111,
+      "tool_calls": 16,
+      "tool_errors": [],
+      "error": null
+    },
+    {
+      "id": "unknown-sender",
+      "group": "unknown_customer",
+      "passed": true,
+      "checks": {
+        "asset_id": {
+          "expected": null,
+          "actual": null,
+          "ok": true
+        },
+        "po_created": {
+          "expected": false,
+          "actual": false,
+          "ok": true
+        },
+        "final_status": {
+          "expected": "needs_human",
+          "actual": "needs_human",
+          "ok": true
+        }
+      },
+      "run_id": "run_a30a1524a439",
+      "status": "needs_human",
+      "latency_s": 0.52,
+      "tokens": 0,
+      "tool_calls": 1,
+      "tool_errors": [
+        "find_customer: not_found: No customer with email 'owner@newcornershop.lk'"
+      ],
+      "error": null
+    }
+  ]
+}

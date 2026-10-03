@@ -13,6 +13,7 @@ class Settings:
     database_url: str
     api_key: str
     seed_today: date | None
+    admin_enabled: bool
 
 
 def _parse_date(value: str | None) -> date | None:
@@ -26,6 +27,7 @@ def load_settings() -> Settings:
         ),
         api_key=os.environ.get("MOCK_API_KEY", "dev-mock-key"),
         seed_today=_parse_date(os.environ.get("SEED_TODAY")),
+        admin_enabled=os.environ.get("MOCK_ADMIN_ENABLED", "").strip().lower() in ("1", "true", "yes"),
     )
 
 

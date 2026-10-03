@@ -1,0 +1,15 @@
+# GAS-R404A reserved, DRY-FILTER ordered from VEN-01 (LKR 3,000).
+id: templeroad-freezer1-refrigerant-leak-po
+group: po_under_threshold
+ticket:
+  customer_email: manager@templeroadsuper.lk
+  text: "Freezer #1 at Katugastota has been losing cooling gradually over the past week. Staff hear a hissing sound and there are oil stains near the pipes."
+expect:
+  asset_id: FRZ-1014
+  fault_code: REF_LEAK
+  priority: P2
+  po_created: true
+  approval_required: false
+  technician_id: TECH-04
+  final_status: scheduled
+approval_decision: null

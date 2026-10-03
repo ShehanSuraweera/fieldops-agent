@@ -22,6 +22,8 @@ services:
       TEST_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-fieldops}:${POSTGRES_PASSWORD:-fieldops}@postgres:5432/fieldops_test
       MOCK_API_KEY: ${MOCK_API_KEY:-dev-mock-key}
       SEED_TODAY: ${SEED_TODAY:-}
+      # Enables POST /admin/reseed, which the eval runner uses. Turn off outside dev and CI.
+      MOCK_ADMIN_ENABLED: ${MOCK_ADMIN_ENABLED:-true}
     ports:
       - "${MOCK_PORT:-8001}:8000"
     depends_on:
@@ -62,6 +64,26 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  # Eval runner: docker compose run --rm evals [--only ID] [--delay 10] [--min-pass-rate 0.85]
+  evals:
+    image: fieldops-agent-agent
+    build: ./services/agent
+    profiles: ["evals"]
+    working_dir: /evals
+    entrypoint: ["python", "run_evals.py"]
+    environment:
+      AGENT_URL: http://agent:8000
+      AGENT_API_KEY: ${AGENT_API_KEY:-dev-agent-key}
+      MOCK_URL: http://enterprise_mock:8000
+      MOCK_API_KEY: ${MOCK_API_KEY:-dev-mock-key}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}  # recorded in the report only
+      LLM_MODEL: ${LLM_MODEL:-}
+    volumes:
+      - ./evals:/evals
+    depends_on:
+      agent:
+        condition: service_healthy
 
 volumes:
   pgdata:

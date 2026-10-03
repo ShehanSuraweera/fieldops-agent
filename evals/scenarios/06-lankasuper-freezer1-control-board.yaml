@@ -1,0 +1,14 @@
+# Gold, unit down; CTL-BRD-A in stock.
+id: lankasuper-freezer1-control-board
+group: in_stock
+ticket:
+  customer_email: facilities@lankasuper.lk
+  text: "Freezer #1 at Wattala is completely dead: the display is blank, it shows no response to any button and it has stopped running."
+expect:
+  asset_id: FRZ-1001
+  fault_code: CTRL_BOARD
+  priority: P1
+  po_created: false
+  technician_id: TECH-01
+  final_status: scheduled
+approval_decision: null

@@ -1,0 +1,15 @@
+# Silver 24 h SLA; TECH-08 first free on 6 Oct.
+id: wayamba-freezer1-no-tech-in-sla
+group: no_technician_in_sla
+ticket:
+  customer_email: ops@wayambasuper.lk
+  text: "The door of Freezer #1 at Kuliyapitiya is not sealing. Cold air leaks out and frost is forming near the door."
+expect:
+  asset_id: FRZ-1034
+  fault_code: DOOR_GASKET
+  priority: P2
+  po_created: false
+  technician_id: TECH-08
+  sla_risk: true
+  final_status: scheduled
+approval_decision: null

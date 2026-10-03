@@ -1,0 +1,16 @@
+# Under warranty: PO for FAN-COND-L (VEN-01 LKR 29,500).
+id: greenbasket-chiller1-warranty-condenser-fan
+group: warranty_claim
+ticket:
+  customer_email: maintenance@greenbasket.lk
+  text: "Chiller #1 at Colombo 7 is running hot at the back. Warm air is not being expelled, there is a rattling at the back and the compressor cycles on and off a lot."
+expect:
+  asset_id: CHL-1004
+  fault_code: COND_FAN
+  priority: P2
+  po_created: true
+  warranty_claim: true
+  approval_required: false
+  technician_id: TECH-02
+  final_status: scheduled
+approval_decision: null

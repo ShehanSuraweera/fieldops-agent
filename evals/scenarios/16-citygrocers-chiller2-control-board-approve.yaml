@@ -1,0 +1,15 @@
+# CTL-BRD-B from VEN-01 LKR 119,700 approved.
+id: citygrocers-chiller2-control-board-approve
+group: po_over_threshold
+ticket:
+  customer_email: admin@citygrocers.lk
+  text: "Chiller #2 at Rajagiriya shows error codes on the display and keeps shutting down randomly. Most of the time it is unresponsive."
+expect:
+  asset_id: CHL-1007
+  fault_code: CTRL_BOARD
+  priority: P3
+  po_created: true
+  approval_required: true
+  technician_id: TECH-01
+  final_status: scheduled
+approval_decision: approve

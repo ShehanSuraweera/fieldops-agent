@@ -1,0 +1,12 @@
+# Vague, intermittent: inspection visit, no parts.
+id: freshmart-chiller1-odd-noise
+group: low_confidence
+ticket:
+  customer_email: ops@freshmart.lk
+  text: "The chiller at Nugegoda sometimes makes an odd noise. Not sure what it is."
+expect:
+  asset_id: CHL-1044
+  inspection: true
+  po_created: false
+  final_status: scheduled
+approval_decision: null
