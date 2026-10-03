@@ -18,13 +18,17 @@ def jsonable(value: Any) -> Any:
 
 class StepRecorder:
     def __init__(
-        self, run_id: str, store: RunStore, on_step: Callable[[StepRecord], None] | None = None
+        self,
+        run_id: str,
+        store: RunStore,
+        on_step: Callable[[StepRecord], None] | None = None,
+        start_seq: int = 0,
     ) -> None:
         self.run_id = run_id
         self.store = store
         self.on_step = on_step
         self.node = "start"
-        self.seq = 0
+        self.seq = start_seq  # a resumed run continues numbering after its earlier steps
         self.input_tokens = 0
         self.output_tokens = 0
 

@@ -39,3 +39,14 @@ def dump(model: BaseModel) -> dict[str, Any]:
 
 def now_of(state: TicketState) -> datetime:
     return datetime.fromisoformat(state["now"])
+
+
+def procurement_rejected(state: TicketState) -> bool:
+    """A manager rejected the PO: the visit becomes an inspection while parts are sourced manually."""
+    return (state.get("approval") or {}).get("decision") == "reject"
+
+
+def visit_hours(state: TicketState, deps: Deps) -> float:
+    if procurement_rejected(state):
+        return deps.rules.inspection_hours
+    return state["diagnosis"]["est_hours"]

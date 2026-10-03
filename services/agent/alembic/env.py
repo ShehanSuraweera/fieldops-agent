@@ -13,7 +13,8 @@ VERSION_TABLE = "alembic_version"  # kept inside the agent schema, apart from th
 def include_name(name: str | None, type_: str, parent_names: object) -> bool:
     if type_ == "schema":
         return name == SCHEMA
-    return True
+    # LangGraph's checkpoint tables are created and migrated by PostgresSaver.setup().
+    return not (type_ == "table" and name is not None and name.startswith("checkpoint"))
 
 
 def run_migrations_online() -> None:

@@ -1,10 +1,11 @@
 """Persistence for runs and steps: Postgres in the service, in-memory in tests."""
 
+import threading
 from datetime import datetime
 from typing import Any, Protocol
 
 from pydantic import BaseModel
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, func, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import settings
@@ -47,14 +48,19 @@ class RunStore(Protocol):
     def add_step(self, step: StepRecord) -> None: ...
     def update_run(self, run_id: str, **fields: Any) -> None: ...
     def get_run(self, run_id: str) -> RunRecord | None: ...
-    def list_runs(self, limit: int = 50) -> list[RunRecord]: ...
-    def list_steps(self, run_id: str) -> list[StepRecord]: ...
+    def list_runs(self, limit: int = 50, status: str | None = None) -> list[RunRecord]: ...
+    def list_steps(self, run_id: str, after_seq: int = 0) -> list[StepRecord]: ...
+    def last_seq(self, run_id: str) -> int: ...
+    def claim_paused(self, run_id: str) -> bool:
+        """Atomically move a run from awaiting_approval to running. False if it was not paused."""
+        ...
 
 
 class MemoryRunStore:
     def __init__(self) -> None:
         self.runs: dict[str, RunRecord] = {}
         self.steps: list[StepRecord] = []
+        self._lock = threading.Lock()
 
     def create_run(self, run_id: str, customer_email: str, raw_text: str, clock: datetime) -> None:
         self.runs[run_id] = RunRecord(
@@ -71,11 +77,23 @@ class MemoryRunStore:
     def get_run(self, run_id: str) -> RunRecord | None:
         return self.runs.get(run_id)
 
-    def list_runs(self, limit: int = 50) -> list[RunRecord]:
-        return list(reversed(self.runs.values()))[:limit]
+    def list_runs(self, limit: int = 50, status: str | None = None) -> list[RunRecord]:
+        runs = [r for r in reversed(self.runs.values()) if status is None or r.status == status]
+        return runs[:limit]
 
-    def list_steps(self, run_id: str) -> list[StepRecord]:
-        return [s for s in self.steps if s.run_id == run_id]
+    def list_steps(self, run_id: str, after_seq: int = 0) -> list[StepRecord]:
+        return [s for s in self.steps if s.run_id == run_id and s.seq > after_seq]
+
+    def last_seq(self, run_id: str) -> int:
+        return max((s.seq for s in self.steps if s.run_id == run_id), default=0)
+
+    def claim_paused(self, run_id: str) -> bool:
+        with self._lock:
+            run = self.runs.get(run_id)
+            if run is None or run.status != "awaiting_approval":
+                return False
+            self.runs[run_id] = run.model_copy(update={"status": "running"})
+            return True
 
 
 class SqlRunStore:
@@ -112,15 +130,32 @@ class SqlRunStore:
             run = session.get(Run, run_id)
             return _run_record(run) if run else None
 
-    def list_runs(self, limit: int = 50) -> list[RunRecord]:
+    def list_runs(self, limit: int = 50, status: str | None = None) -> list[RunRecord]:
+        stmt = select(Run).order_by(Run.created_at.desc(), Run.id).limit(limit)
+        if status:
+            stmt = stmt.where(Run.status == status)
         with self._session() as session:
-            runs = session.scalars(select(Run).order_by(Run.created_at.desc(), Run.id).limit(limit))
-            return [_run_record(r) for r in runs]
+            return [_run_record(r) for r in session.scalars(stmt)]
 
-    def list_steps(self, run_id: str) -> list[StepRecord]:
+    def list_steps(self, run_id: str, after_seq: int = 0) -> list[StepRecord]:
+        stmt = select(RunStep).where(RunStep.run_id == run_id, RunStep.seq > after_seq).order_by(RunStep.seq)
         with self._session() as session:
-            steps = session.scalars(select(RunStep).where(RunStep.run_id == run_id).order_by(RunStep.seq))
-            return [_step_record(s) for s in steps]
+            return [_step_record(s) for s in session.scalars(stmt)]
+
+    def last_seq(self, run_id: str) -> int:
+        with self._session() as session:
+            return session.scalar(select(func.max(RunStep.seq)).where(RunStep.run_id == run_id)) or 0
+
+    def claim_paused(self, run_id: str) -> bool:
+        with self._session() as session:
+            claimed = session.execute(
+                update(Run)
+                .where(Run.id == run_id, Run.status == "awaiting_approval")
+                .values(status="running")
+                .returning(Run.id)
+            ).first()
+            session.commit()
+            return claimed is not None
 
     def count_runs(self) -> int:
         with self._session() as session:

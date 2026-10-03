@@ -118,7 +118,7 @@ class FakeEnterprise:
                 name="Thermostat failure",
                 symptoms=["temperature erratic"],
                 applies_to_models=["AP-500", "FL-140", "PM-220"],
-                likely_parts=["THM-MECH"],
+                likely_parts=["THM-MECH", "THM-DIGI"],
                 skill_required="electrical",
                 est_hours=1.5,
             ),
@@ -148,6 +148,14 @@ class FakeEnterprise:
                 stock_qty=10,
                 reorder_level=4,
             ),
+            "THM-DIGI": Part(
+                sku="THM-DIGI",
+                name="Digital thermostat",
+                compatible_models=["FL-140"],
+                unit_cost_lkr=18_000,
+                stock_qty=0,
+                reorder_level=2,
+            ),
         }
         self.offers = [
             VendorOffer(
@@ -175,10 +183,20 @@ class FakeEnterprise:
                 price_lkr=99_000,
             ),
         ]
+        self.offers.append(
+            VendorOffer(
+                vendor_id="VEN-01",
+                vendor_name="Ceylon Refrigeration",
+                sku="THM-DIGI",
+                approved=True,
+                lead_time_days=2,
+                price_lkr=19_800,
+            )
+        )
         self.technicians = {
             "TECH-01": ("Nimal Perera", "Colombo", ["refrigeration", "electrical"]),
             "TECH-02": ("Kasun Fernando", "Colombo", ["refrigeration", "electrical", "general"]),
-            "TECH-04": ("Ruwan Bandara", "Kandy", ["refrigeration", "general"]),
+            "TECH-04": ("Ruwan Bandara", "Kandy", ["refrigeration", "electrical", "general"]),
         }
         self.slots: dict[int, tuple[str, datetime, datetime, bool]] = {}
         slot_id = 0

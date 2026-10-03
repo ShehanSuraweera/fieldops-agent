@@ -4,7 +4,9 @@ from typing import Any, Literal, TypedDict
 
 from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_validator
 
-RunStatus = Literal["running", "needs_info", "awaiting_approval", "scheduled", "needs_human"]
+RunStatus = Literal[
+    "running", "needs_info", "awaiting_approval", "scheduled", "needs_manual_procurement", "needs_human"
+]
 
 
 class TicketState(TypedDict, total=False):

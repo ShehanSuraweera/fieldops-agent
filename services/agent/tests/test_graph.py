@@ -126,24 +126,25 @@ def test_site_hint_resolves_duplicate_names() -> None:
     assert summary["asset_id"] == "FRZ-1010"
 
 
-def test_out_of_stock_part_is_ordered_then_visit_follows_delivery() -> None:
+def test_over_threshold_po_pauses_for_approval() -> None:
     h = Harness({"intake": intake_reply("Freezer #1", "Peradeniya"), "diagnose": diagnosis_reply()})
     state, summary = h.run(PERADENIYA, "Freezer #1 at Peradeniya stopped cooling")
 
-    assert summary["status"] == "scheduled", summary["errors"]
+    assert summary["status"] == "awaiting_approval", summary["errors"]
     assert summary["parts"] == [{"sku": "CMP-FL", "status": "needs_po"}]
-    assert summary["po_created"]
     po = h.enterprise.purchase_orders[summary["po_id"]]
     # Bronze SLA is 72 h: VEN-01 (2 days) meets it, VEN-03 (5 days) is cheaper but late, VEN-05 is unapproved.
     assert po.vendor_id == "VEN-01"
     assert po.total_lkr == 129_000
-    assert po.status == "sent"
-    assert po.warranty_claim is False
-    assert summary["approval_required"] is True  # over LKR 100,000; auto-approved until Phase 4
-    assert state["approval"]["decision"] == "approve"
-    start = datetime.fromisoformat(summary["scheduled_start"])
-    assert start >= NOW + timedelta(days=2)
-    assert summary["technician_id"] == "TECH-04"
+    assert po.status == "pending_approval"
+    assert summary["approval_required"] is True
+    assert summary["approval_decision"] is None
+    assert summary["work_order_id"] is None  # nothing is booked until a manager decides
+    assert h.ticket(summary["ticket_id"]).status == "awaiting_approval"
+    run = h.store.get_run(state["run_id"])
+    assert run.status == "awaiting_approval"
+    assert run.finished_at is None
+    assert [s.node for s in h.steps("node")][-2:] == ["procure", "approve_po"]
 
 
 def test_low_confidence_books_inspection_without_parts() -> None:

@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from typing import Any
 
-from app.nodes.common import Deps, NodeFailure, dump, fail, now_of, require
+from app.nodes.common import Deps, NodeFailure, dump, fail, now_of, require, visit_hours
 from app.rules import AssetFacts, choose_technician
 from app.state import TicketState
 
@@ -14,10 +14,13 @@ def schedule(state: TicketState, deps: Deps) -> dict[str, Any]:
     asset, diagnosis = state["asset"], state["diagnosis"]
     facts = AssetFacts.model_validate(state["asset_facts"])
     deadline = datetime.fromisoformat(state["sla_deadline"])
+    # Not before the run, not before a manager's decision, not before the parts arrive.
     earliest = now_of(state)
-    if state.get("parts_ready_at"):
-        earliest = max(earliest, datetime.fromisoformat(state["parts_ready_at"]))
+    for later in ((state.get("approval") or {}).get("decided_at"), state.get("parts_ready_at")):
+        if later:
+            earliest = max(earliest, datetime.fromisoformat(later))
     latest = earliest + timedelta(days=SEARCH_WINDOW_DAYS)
+    hours = visit_hours(state, deps)
 
     # Two tries: if the chosen slot is taken between search and booking, search again.
     for attempt in (1, 2):
@@ -34,7 +37,7 @@ def schedule(state: TicketState, deps: Deps) -> dict[str, Any]:
             prior_technician_ids=facts.previous_technician_ids,
             earliest=earliest,
             sla_deadline=deadline,
-            est_hours=diagnosis["est_hours"],
+            est_hours=hours,
         )
         if choice is None:
             return fail(
@@ -47,7 +50,7 @@ def schedule(state: TicketState, deps: Deps) -> dict[str, Any]:
             asset_id=asset["id"],
             technician_id=choice.technician_id,
             scheduled_start=choice.start,
-            est_hours=diagnosis["est_hours"],
+            est_hours=hours,
         )
         if booking.ok:
             return {

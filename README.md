@@ -4,8 +4,9 @@ An autonomous AI agent that runs CoolTech Services' field service process (from 
 complaint to a booked technician) across mock CRM, ERP and FSM systems. It is built in seven phases,
 from mock enterprise systems up to an MCP server and dashboard.
 
-**Status:** Phases 1–3 are complete: mock enterprise systems, business rules and tools, and the agent
-graph with its API and CLI.
+**Status:** Phases 1–4 are complete: mock enterprise systems, business rules and tools, the agent graph
+with its API and CLI, and manager approval of large purchase orders (runs pause, survive restarts and
+resume).
 
 ## What exists so far
 
@@ -21,6 +22,8 @@ graph with its API and CLI.
 | LLM wrapper | `services/agent/app/llm.py`, `prompts/` | Gemini (default), OpenAI or Groq; every output validated by Pydantic, retried once |
 | Run log | `agent.runs`, `agent.run_steps` | One row per node, tool call and LLM call (input, output, latency, tokens, error) |
 | Agent API and CLI | `services/agent/app/api.py`, `cli.py` | API docs at <http://localhost:8002/docs>; the CLI prints the step trace |
+| Human approval | `nodes/parts.py` (`approve_po`), `checkpoint.py` | POs over LKR 100,000 pause the run with LangGraph `interrupt()`; state is checkpointed in Postgres |
+| Live events | `GET /runs/{id}/events` | Server-Sent Events: one event per step, then the final or paused status |
 
 The LLM reads the complaint, picks a fault code from the catalog and words the customer messages. Plain
 Python decides everything else: priority, SLA, warranty, vendor, PO approval, technician, dates and money.
@@ -67,6 +70,37 @@ curl -H "$H" localhost:8002/runs/<run_id>      # status, summary and every logge
 curl -H "$H" localhost:8002/runs               # recent runs
 ```
 
+### Approve or reject a purchase order
+
+A PO above LKR 100,000 (`po_approval_threshold_lkr` in `config/rules.yaml`) pauses the run as
+`awaiting_approval`. The PO is `pending_approval` in the ERP, and nothing is booked yet. The paused run
+lives in Postgres, so it survives `docker compose restart agent`.
+
+```bash
+D=2026-10-03
+docker compose exec enterprise_mock python -m app.seed --reset --today $D
+docker compose exec agent python -m app.cli "Freezer #2 at Katugastota stopped cooling. The compressor will not start, it just clicks every few seconds." --email ops@kandycold.lk --now ${D}T09:00
+# -> Status: awaiting_approval, plus the resume command, e.g.:
+docker compose exec agent python -m app.cli --resume <run_id> --decision approve --comment "OK"
+```
+
+Add `--decision approve|reject` to the first command to answer the pause straight away. The same
+through the API:
+
+```bash
+H="X-API-Key: dev-agent-key"
+curl -H "$H" localhost:8002/approvals/pending        # PO, vendor reasoning, diagnosis, ticket
+curl -X POST localhost:8002/runs/<run_id>/approval -H "$H" -H "Content-Type: application/json" -d '{"decision": "reject", "comment": "Use refurbished stock"}'
+curl -N -H "$H" localhost:8002/runs/<run_id>/events  # live step stream (Server-Sent Events)
+```
+
+- **Approve:** the PO goes to `sent`. The vendor's lead time starts at approval, and the visit is booked
+  after the parts arrive. The run ends `scheduled`.
+- **Reject:** the PO goes to `rejected` and the ticket to `needs_manual_procurement`. The agent books an
+  inspection-only visit (not before the decision time) and tells the customer about the parts delay.
+  The run ends `needs_manual_procurement`.
+- A second decision on the same run gets `409 not_awaiting_approval`.
+
 To switch provider, set `LLM_PROVIDER=openai` or `groq` (and optionally `LLM_MODEL`) plus that
 provider's key in `.env`. Then run `docker compose up -d` to restart the agent with the new settings.
 Without a key, a run ends as `needs_human` with the reason recorded.
@@ -98,7 +132,9 @@ None of the tests need an LLM key or touch your dev data:
 - The mock tests use their own `fieldops_test` database.
 - The agent's graph tests run against an in-memory enterprise and a scripted LLM.
 - The LLM wrapper is tested against fake provider endpoints.
-- The run-store and API tests use a `fieldops_agent_test` database.
+- The approval tests pause and resume runs with an in-memory checkpointer.
+- The run-store, restart and API tests use a `fieldops_agent_test` database. The restart test pauses a
+  run with one Postgres checkpointer and resumes it with a brand-new one.
 - `test_tools_live.py` makes read-only calls against the running mock.
 
 To change a business-rule threshold, edit `config/rules.yaml`. It is mounted into the agent container,

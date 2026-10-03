@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 
 from app.config import LK_TZ
-from app.nodes.common import Deps, require
+from app.nodes.common import Deps, procurement_rejected, require
 from app.state import CustomerMessage, TicketState
 
 
@@ -24,7 +24,15 @@ def _booking_facts(state: TicketState) -> tuple[dict[str, str], list[str]]:
         "technician": work_order["technician_name"],
         "visit_time": visit_time_text(start),
     }
-    if diagnosis["inspection"]:
+    if procurement_rejected(state):
+        facts["visit_purpose"] = (
+            "Inspection visit to check and secure the unit. The repair itself will be booked separately."
+        )
+        facts["parts"] = (
+            "There is a delay in sourcing the replacement parts; our team is arranging them and will "
+            "contact you with a repair date."
+        )
+    elif diagnosis["inspection"]:
         facts["visit_purpose"] = "Inspection visit to confirm the fault before any parts are ordered."
     else:
         facts["visit_purpose"] = f"Repair visit for: {diagnosis['fault_name']}."
@@ -56,18 +64,28 @@ def finalize(state: TicketState, deps: Deps) -> dict[str, Any]:
         f"on {facts['visit_time']}, "
         f"work order {work_order['id']}."
     )
+    rejected = procurement_rejected(state)
     if state.get("purchase_order"):
         po = state["purchase_order"]
-        lines.append(f"Parts ordered on {po['id']} from {po['vendor_name']} (LKR {po['total_lkr']:,}).")
-    if work_order["sla_risk"] or (state.get("purchase_order") or {}).get("sla_risk"):
+        if rejected:
+            comment = state["approval"].get("comment") or "no comment"
+            lines.append(
+                f"Manual procurement needed: manager rejected {po['id']} from {po['vendor_name']} "
+                f"(LKR {po['total_lkr']:,}): {comment}. Inspection visit booked meanwhile."
+            )
+        else:
+            lines.append(f"Parts ordered on {po['id']} from {po['vendor_name']} (LKR {po['total_lkr']:,}).")
+    po_late = (state.get("purchase_order") or {}).get("sla_risk") and not rejected
+    if work_order["sla_risk"] or po_late:
         lines.append("SLA at risk: the visit is after the SLA deadline.")
+    final_status = "needs_manual_procurement" if rejected else "scheduled"
     require(
         deps.tools.update_ticket(
-            ticket_id=ticket_id, fields={"status": "scheduled", "resolution_note": "\n".join(lines)}
+            ticket_id=ticket_id, fields={"status": final_status, "resolution_note": "\n".join(lines)}
         ),
         "update_ticket",
     )
-    return {"status": "scheduled", "customer_message": message.body}
+    return {"status": final_status, "customer_message": message.body}
 
 
 def escalate(state: TicketState, deps: Deps) -> dict[str, Any]:

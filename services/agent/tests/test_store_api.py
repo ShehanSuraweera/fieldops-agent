@@ -1,5 +1,6 @@
 """Postgres run store and the agent HTTP API."""
 
+import json
 from collections.abc import Iterator
 
 import pytest
@@ -90,3 +91,113 @@ def test_api_errors(client: TestClient) -> None:
     invalid = client.post("/runs", json={"customer_email": "x@y.lk"})
     assert invalid.status_code == 422
     assert invalid.json()["error"]["code"] == "validation_error"
+
+
+# --- Phase 4: approvals, restart survival, SSE ------------------------------------
+
+OVER_THRESHOLD = {
+    "customer_email": "info@peradeniyafresh.lk",
+    "text": "Freezer #1 at Peradeniya stopped cooling",
+}
+
+
+def _paused_agent(store: SqlRunStore, checkpointer) -> tuple[Agent, FakeEnterprise]:
+    llm = FakeLLM({"intake": intake_reply("Freezer #1", "Peradeniya"), "diagnose": diagnosis_reply()})
+    enterprise = FakeEnterprise()
+    agent = Agent(
+        store, provider=llm, tools_factory=lambda clock: enterprise, rules=RULES, checkpointer=checkpointer
+    )
+    return agent, enterprise
+
+
+def test_paused_run_survives_a_restart(agent_db: str) -> None:
+    """Pause with one Agent and Postgres connection pool, resume with a brand-new one."""
+    from app.checkpoint import close_checkpointer, postgres_checkpointer
+
+    saver = postgres_checkpointer(agent_db, max_size=2)
+    before, enterprise = _paused_agent(SqlRunStore(agent_db), saver)
+    run_id = before.run(OVER_THRESHOLD["customer_email"], OVER_THRESHOLD["text"], now=NOW)["run_id"]
+    assert before.store.get_run(run_id).status == "awaiting_approval"
+    close_checkpointer(saver)  # the "process" is gone
+    del before
+
+    fresh_saver = postgres_checkpointer(agent_db, max_size=2)
+    try:
+        after = Agent(
+            SqlRunStore(agent_db),
+            provider=FakeLLM({}),
+            tools_factory=lambda clock: enterprise,
+            rules=RULES,
+            checkpointer=fresh_saver,
+        )
+        state = after.resume(run_id, "approve", "approved after restart", now=NOW)
+    finally:
+        close_checkpointer(fresh_saver)
+    assert state["status"] == "scheduled", state["errors"]
+    assert state["purchase_order"]["status"] == "sent"
+    assert after.store.get_run(run_id).status == "scheduled"
+
+
+def test_api_pending_approvals_and_decision(store: SqlRunStore) -> None:
+    agent, enterprise = _paused_agent(store, None)
+    app.dependency_overrides[get_agent] = lambda: agent
+    try:
+        with TestClient(app, headers={"X-API-Key": settings.api_key}) as client:
+            run_id = client.post("/runs", json={**OVER_THRESHOLD, "now": NOW.isoformat()}).json()["run_id"]
+            assert client.get(f"/runs/{run_id}").json()["status"] == "awaiting_approval"
+
+            pending = {p["run_id"]: p for p in client.get("/approvals/pending").json()}
+            item = pending[run_id]
+            assert item["purchase_order"]["total_lkr"] == 129_000
+            assert item["purchase_order"]["vendor_id"] == "VEN-01"
+            assert "reason" in item["purchase_order"]
+            assert item["diagnosis"]["fault_code"] == "COMP_FAIL"
+            assert item["customer"]["name"] == "Peradeniya Fresh"
+
+            bad = client.post(f"/runs/{run_id}/approval", json={"decision": "maybe"})
+            assert bad.status_code == 422
+            response = client.post(f"/runs/{run_id}/approval", json={"decision": "approve", "comment": "ok"})
+            assert response.status_code == 202
+            assert client.get(f"/runs/{run_id}").json()["status"] == "scheduled"
+            assert run_id not in {p["run_id"] for p in client.get("/approvals/pending").json()}
+
+            again = client.post(f"/runs/{run_id}/approval", json={"decision": "reject"})
+            assert again.status_code == 409
+            assert again.json()["error"]["code"] == "not_awaiting_approval"
+            assert client.post("/runs/run_missing/approval", json={"decision": "approve"}).status_code == 404
+    finally:
+        app.dependency_overrides.clear()
+    assert len(enterprise.work_orders) == 1
+
+
+def _parse_sse(text: str) -> list[dict]:
+    events = []
+    for block in text.strip().split("\n\n"):
+        fields = dict(
+            line.split(": ", 1) for line in block.splitlines() if ": " in line and not line.startswith(":")
+        )
+        if "event" in fields:
+            events.append(
+                {"event": fields["event"], "id": fields.get("id"), "data": json.loads(fields["data"])}
+            )
+    return events
+
+
+def test_sse_streams_steps_then_status(client: TestClient) -> None:
+    run_id = client.post("/runs", json={**DEMO, "now": NOW.isoformat()}).json()["run_id"]
+    with client.stream("GET", f"/runs/{run_id}/events") as response:
+        assert response.headers["content-type"].startswith("text/event-stream")
+        events = _parse_sse(response.read().decode())
+    steps = [e for e in events if e["event"] == "step"]
+    assert [int(e["id"]) for e in steps] == list(range(1, len(steps) + 1))
+    assert steps[0]["data"]["tool_name"] == "find_customer"
+    assert events[-1]["event"] == "status"
+    assert events[-1]["data"]["status"] == "scheduled"
+
+    # Reconnecting with Last-Event-ID only replays what came after it.
+    with client.stream(
+        "GET", f"/runs/{run_id}/events", headers={"Last-Event-ID": str(len(steps) - 2)}
+    ) as response:
+        tail = _parse_sse(response.read().decode())
+    assert [int(e["id"]) for e in tail if e["event"] == "step"] == [len(steps) - 1, len(steps)]
+    assert client.get("/runs/run_missing/events").status_code == 404
