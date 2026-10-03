@@ -10,10 +10,18 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
+# FastAPI's Depends() defaults are idiomatic.
+extend-ignore = ["B008"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app", "tests"]
+# The local alembic/ folder holds migrations, not the alembic package.
+known-third-party = ["alembic"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.ruff.lint.per-file-ignores]
+# conftest must set DATABASE_URL before importing the app.
+"tests/conftest.py" = ["E402"]

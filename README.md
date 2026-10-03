@@ -4,7 +4,8 @@ An autonomous AI agent that runs CoolTech Services' field service process (from 
 complaint to a booked technician) across mock CRM, ERP and FSM systems. It is built in seven phases,
 from mock enterprise systems up to an MCP server and dashboard.
 
-**Status:** Phases 1–2 are complete: mock enterprise systems, plus the agent's business rules and tools.
+**Status:** Phases 1–3 are complete: mock enterprise systems, business rules and tools, and the agent
+graph with its API and CLI.
 
 ## What exists so far
 
@@ -12,29 +13,65 @@ from mock enterprise systems up to an MCP server and dashboard.
 | --- | --- | --- |
 | Postgres 16 | `docker-compose.yml` | One database with schemas `crm`, `fsm`, `erp`, `agent` |
 | Enterprise mock API | `services/enterprise_mock/` | FastAPI app with CRM, FSM and ERP routers |
-| Migrations | `services/enterprise_mock/alembic/` | Run automatically when the container starts |
+| Migrations | `services/*/alembic/` | Run automatically when each container starts |
 | Seed data | `services/enterprise_mock/app/seed.py` | Deterministic: same reference date → same data |
-| Tests | `services/enterprise_mock/tests/` | Run against a real Postgres test database (`fieldops_test`) |
 | Business rules | `services/agent/app/rules.py` | Pure functions; every threshold read from `config/rules.yaml` |
 | Enterprise tools | `services/agent/app/tools.py` | Typed httpx wrappers returning `{ok, data, error}`, with timeouts and retries |
+| Agent graph | `services/agent/app/graph.py`, `nodes/` | LangGraph: intake → identify → assess → diagnose → prioritize → parts → procure → schedule → finalize |
+| LLM wrapper | `services/agent/app/llm.py`, `prompts/` | Gemini (default), OpenAI or Groq; every output validated by Pydantic, retried once |
+| Run log | `agent.runs`, `agent.run_steps` | One row per node, tool call and LLM call (input, output, latency, tokens, error) |
+| Agent API and CLI | `services/agent/app/api.py`, `cli.py` | API docs at <http://localhost:8002/docs>; the CLI prints the step trace |
+
+The LLM reads the complaint, picks a fault code from the catalog and words the customer messages. Plain
+Python decides everything else: priority, SLA, warranty, vendor, PO approval, technician, dates and money.
 
 ## How to run
 
 Prerequisite: Docker with Compose v2. You don't need Python on the host.
 
 ```bash
-cp .env.example .env            # optional; every value has a default
+cp .env.example .env            # then set GEMINI_API_KEY (or another provider's key) in .env
 docker compose up -d --build --wait
 ```
 
-This starts Postgres and the enterprise mock on <http://localhost:8001>. On first start, the container
-migrates the database and seeds it. Later restarts keep existing data.
+This starts Postgres, the enterprise mock on <http://localhost:8001> and the agent API on
+<http://localhost:8002>. Only the agent's runs need an LLM key; the rest works without one. On first
+start, the mock migrates the database and seeds it. Later restarts keep existing data.
 
-- API docs: <http://localhost:8001/docs>
-- Every endpoint except `/health` needs the header `X-API-Key: dev-mock-key` (set by `MOCK_API_KEY`).
+- Mock API docs: <http://localhost:8001/docs> (header `X-API-Key: dev-mock-key`, set by `MOCK_API_KEY`)
+- Agent API docs: <http://localhost:8002/docs> (header `X-API-Key: dev-agent-key`, set by `AGENT_API_KEY`)
 - Errors always have the shape `{"error": {"code", "message", "details"}}`.
 
-### Check the FreshMart demo case
+### Run the FreshMart demo
+
+The demo is deterministic. On the seed date, TECH-02 is always free from 10:00 to 16:00, so pin the
+agent's clock to 09:00 that day. Pick a date that is not a Sunday, because there are no Sunday shifts.
+
+```bash
+D=2026-10-03                                             # use today's date
+docker compose exec enterprise_mock python -m app.seed --reset --today $D
+docker compose exec agent python -m app.cli "Freezer #3 at our Colombo 7 branch stopped cooling again this morning." --email ops@freshmart.lk --now ${D}T09:00
+```
+
+The CLI prints each node, tool call and LLM call as it happens, followed by a summary. Expect
+`"status": "scheduled"`, `"asset_id": "FRZ-1043"`, `"priority": "P1"`, `"technician_id": "TECH-02"` and a
+10:00 start. The compressor `CMP-AP` is reserved from stock, so no PO is created. The demo books TECH-02's
+slot, so reseed before running it again.
+
+The same run through the API (runs execute in the background; poll for the result):
+
+```bash
+H="X-API-Key: dev-agent-key"
+curl -X POST localhost:8002/runs -H "$H" -H "Content-Type: application/json" -d '{"customer_email": "ops@freshmart.lk", "text": "Freezer #3 at our Colombo 7 branch stopped cooling.", "now": "2026-10-03T09:00:00"}'
+curl -H "$H" localhost:8002/runs/<run_id>      # status, summary and every logged step
+curl -H "$H" localhost:8002/runs               # recent runs
+```
+
+To switch provider, set `LLM_PROVIDER=openai` or `groq` (and optionally `LLM_MODEL`) plus that
+provider's key in `.env`. Then run `docker compose up -d` to restart the agent with the new settings.
+Without a key, a run ends as `needs_human` with the reason recorded.
+
+### Check the mock data directly
 
 ```bash
 H="X-API-Key: dev-mock-key"
@@ -43,34 +80,29 @@ curl -H "$H" "http://localhost:8001/fsm/assets?customer_id=CUST-001&q=Freezer%20
 curl -H "$H" "http://localhost:8001/fsm/assets/FRZ-1043/history"
 ```
 
-Expected results: FreshMart is `CUST-001` (gold tier, Colombo). Freezer #3 is `FRZ-1043`, which is under
-warranty. Its newest history record is `COMP_FAIL`, 60 days before the seed date, done by `TECH-02`.
+FreshMart is `CUST-001` (gold tier, Colombo). Freezer #3 is `FRZ-1043`, which is under warranty. Its
+newest history record is `COMP_FAIL`, 60 days before the seed date, done by `TECH-02`.
 
-### Run the tests and linter
+### Run the tests and linters
 
 ```bash
-docker compose build enterprise_mock
+docker compose build
 docker compose run --rm enterprise_mock pytest
-docker compose run --rm enterprise_mock sh -c "ruff check . && ruff format --check ."
-```
-
-The tests create and migrate a separate `fieldops_test` database, so they never touch your dev data.
-
-### Agent rules and tools (Phase 2)
-
-```bash
-docker compose build agent
 docker compose run --rm agent pytest
+docker compose run --rm enterprise_mock sh -c "ruff check . && ruff format --check ."
 docker compose run --rm agent sh -c "ruff check . && ruff format --check ."
 ```
 
-The agent tests need no LLM key. `test_rules.py` and `test_tools.py` run fully offline; the tools are
-tested against a fake API. `test_tools_live.py` makes read-only calls against the running mock and is
-skipped if the mock is down. The `agent` service sits behind the `tools` Compose profile, so
-`docker compose up` doesn't start it until Phase 3 gives it an API.
+None of the tests need an LLM key or touch your dev data:
 
-To change a business rule threshold, edit `config/rules.yaml`. The container mounts it, so no rebuild is
-needed.
+- The mock tests use their own `fieldops_test` database.
+- The agent's graph tests run against an in-memory enterprise and a scripted LLM.
+- The LLM wrapper is tested against fake provider endpoints.
+- The run-store and API tests use a `fieldops_agent_test` database.
+- `test_tools_live.py` makes read-only calls against the running mock.
+
+To change a business-rule threshold, edit `config/rules.yaml`. It is mounted into the agent container,
+so you don't need to rebuild.
 
 ### Reseed or reset
 
@@ -81,7 +113,8 @@ docker compose down -v                                                          
 ```
 
 All seeded dates are offsets from a reference date: `SEED_TODAY` in `.env`, `--today`, or today in
-Colombo. Pin the date when you need fully reproducible data.
+Colombo. Pin the date when you need fully reproducible data. The agent's clock is separate: `--now` on
+the CLI, `now` in `POST /runs`, or `AGENT_NOW` in `.env`.
 
 ## Seed data at a glance
 
@@ -91,5 +124,5 @@ Colombo. Pin the date when you need fully reproducible data.
 - 120 service records, including 6 assets with repeat failures within 90 days
 - 12 fault codes, 30 parts (several at zero stock), 6 vendors (4 approved)
 - 8 technicians with 14 days of 2-hour slots (08:00–18:00, no Sundays). `TECH-08`, Kurunegala's only
-  technician, is fully booked for the first 5 days.
+  technician, is fully booked for the first 5 days. `TECH-02` is always free 10:00–16:00 on the seed date.
 - Money is stored in whole LKR. Times are Asia/Colombo (UTC+05:30).

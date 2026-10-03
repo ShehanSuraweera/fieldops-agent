@@ -4,15 +4,17 @@ from alembic import context
 from sqlalchemy import create_engine
 
 from app.config import settings
-from app.models import SCHEMAS, Base
+from app.models import Base
 
 target_metadata = Base.metadata
+# The mock owns these schemas. The "agent" schema's tables belong to the agent service.
+MANAGED_SCHEMAS = {"crm", "fsm", "erp"}
 
 
 def include_name(name: str | None, type_: str, parent_names: object) -> bool:
     # Only compare our own schemas; ignore anything else in the database.
     if type_ == "schema":
-        return name in SCHEMAS
+        return name in MANAGED_SCHEMAS
     return True
 
 

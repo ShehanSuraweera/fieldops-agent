@@ -10,5 +10,6 @@ RUN pip install --no-cache-dir -r requirements-dev.txt
 
 COPY . .
 
-# Phase 2 has no API yet; the container runs the test suite.
-CMD ["pytest"]
+EXPOSE 8000
+# Migrate the agent schema, then serve the agent API.
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.api:app --host 0.0.0.0 --port 8000"]

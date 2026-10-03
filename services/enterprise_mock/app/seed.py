@@ -98,6 +98,11 @@ TECHNICIANS: list[tuple[str, str, str, list[str]]] = [
 # can exercise the "no technician available within SLA" path.
 BUSY_TECHNICIAN_ID = "TECH-08"
 BUSY_DAYS = 5
+# The demo technician is always free 10:00-16:00 on the reference date, so the
+# FreshMart demo ("Freezer #3 stopped cooling", 4-hour compressor job) books
+# TECH-02 within the gold SLA whenever the agent runs at 09:00 on that date.
+DEMO_TECHNICIAN_ID = "TECH-02"
+DEMO_FREE_STARTS = {time(10), time(12), time(14)}
 
 # code, name, symptoms, models, likely parts, skill, est hours
 FAULT_CODES: list[tuple[str, str, list[str], list[str], list[str], str, float]] = [
@@ -316,6 +321,8 @@ def _build_availability(rng: random.Random, today: date) -> list[Availability]:
             for start in SLOT_STARTS:
                 fully_booked = tech_id == BUSY_TECHNICIAN_ID and offset < BUSY_DAYS
                 booked = fully_booked or rng.random() < 0.3
+                if tech_id == DEMO_TECHNICIAN_ID and offset == 0 and start in DEMO_FREE_STARTS:
+                    booked = False  # after the draw, so the rest of the seed is unchanged
                 slots.append(
                     Availability(
                         technician_id=tech_id, date=day, start=start,

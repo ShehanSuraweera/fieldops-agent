@@ -33,6 +33,7 @@ def cfg() -> RulesConfig:
         po_approval_threshold_lkr=100_000,
         repeat_failure_window_days=90,
         diagnosis_min_confidence=0.6,
+        inspection_hours=2,
     )
 
 
@@ -50,6 +51,7 @@ def test_config_rejects_missing_tier() -> None:
             po_approval_threshold_lkr=1,
             repeat_failure_window_days=90,
             diagnosis_min_confidence=0.6,
+            inspection_hours=2,
         )
 
 
@@ -322,6 +324,14 @@ def test_technician_prior_work_beats_earlier_slot() -> None:
     assert choice.technician_id == "TECH-02"
     assert choice.prior_work_on_asset
     assert not choice.sla_risk
+
+
+def test_technician_most_recent_prior_work_wins() -> None:
+    # Both worked on the asset; TECH-02 did the latest repair, even though TECH-01 is less busy.
+    techs = [_tech("TECH-01", [(0, 10, 0)]), _tech("TECH-02", [(0, 10, 3)])]
+    choice = _choose(techs, prior=["TECH-02", "TECH-01"])
+    assert choice.technician_id == "TECH-02"
+    assert "most recently" in choice.reason
 
 
 def test_technician_earliest_slot_then_fewest_jobs() -> None:

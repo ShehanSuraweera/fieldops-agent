@@ -90,3 +90,14 @@ def test_seed_dates_move_with_reference_date() -> None:
     for asset_id, asset in first.items():
         assert shifted[asset_id].install_date - asset.install_date == timedelta(days=7)
         assert shifted[asset_id].name == asset.name
+
+
+def test_demo_technician_is_free_on_reference_date() -> None:
+    with SessionLocal() as session:
+        slots = session.scalars(
+            select(Availability).where(
+                Availability.technician_id == "TECH-02", Availability.date == SEED_TODAY
+            )
+        ).all()
+    free = sorted(s.start.hour for s in slots if not s.booked)
+    assert {10, 12, 14} <= set(free)

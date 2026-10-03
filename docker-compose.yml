@@ -33,21 +33,35 @@ services:
       timeout: 3s
       retries: 20
 
-  # Phase 2: rules + tools only, so this runs the test suite on demand:
-  #   docker compose run --rm agent
-  # Phase 3 turns it into the agent API and drops the profile.
   agent:
     build: ./services/agent
-    profiles: ["tools"]
     environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-fieldops}:${POSTGRES_PASSWORD:-fieldops}@postgres:5432/${POSTGRES_DB:-fieldops}
+      TEST_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-fieldops}:${POSTGRES_PASSWORD:-fieldops}@postgres:5432/fieldops_agent_test
       MOCK_BASE_URL: http://enterprise_mock:8000
       MOCK_API_KEY: ${MOCK_API_KEY:-dev-mock-key}
       RULES_PATH: /config/rules.yaml
+      AGENT_API_KEY: ${AGENT_API_KEY:-dev-agent-key}
+      AGENT_NOW: ${AGENT_NOW:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      LLM_MODEL: ${LLM_MODEL:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+    ports:
+      - "${AGENT_PORT:-8002}:8000"
     volumes:
       - ./config:/config:ro
     depends_on:
+      postgres:
+        condition: service_healthy
       enterprise_mock:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
 volumes:
   pgdata:

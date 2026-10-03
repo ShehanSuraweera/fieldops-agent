@@ -37,6 +37,7 @@ class RulesConfig(BaseModel):
     po_approval_threshold_lkr: int = Field(ge=0)
     repeat_failure_window_days: PositiveInt
     diagnosis_min_confidence: float = Field(ge=0, le=1)
+    inspection_hours: float = Field(gt=0, le=10)
 
     @model_validator(mode="after")
     def _every_tier_has_an_sla(self) -> "RulesConfig":
@@ -313,15 +314,22 @@ def choose_technician(
     """Pick the technician and visit start.
 
     Eligible: has ``skill`` and works in ``region``. Among visits starting by the SLA
-    deadline, rank by previous work on this asset, then earliest start, then fewest
-    jobs that day. If no visit meets the SLA, take the earliest one and flag ``sla_risk``.
+    deadline, rank by previous work on this asset (``prior_technician_ids`` is newest
+    first, so the technician who worked on it most recently ranks highest), then
+    earliest start, then fewest jobs that day. If no visit meets the SLA, take the
+    earliest one and flag ``sla_risk``.
     """
     _require_aware(earliest, "earliest")
     _require_aware(sla_deadline, "sla_deadline")
     if est_hours <= 0:
         raise ValueError("est_hours must be positive")
 
-    prior = set(prior_technician_ids)
+    prior_rank = {tech_id: i for i, tech_id in enumerate(prior_technician_ids)}
+    no_prior = len(prior_rank)
+
+    def recency(option: TechnicianChoice) -> int:
+        return prior_rank.get(option.technician_id, no_prior)
+
     options: list[TechnicianChoice] = []
     for tech in candidates:
         if tech.region.lower() != region.lower() or skill.lower() not in {s.lower() for s in tech.skills}:
@@ -334,7 +342,7 @@ def choose_technician(
                     start=start,
                     end=end,
                     slot_ids=slot_ids,
-                    prior_work_on_asset=tech.technician_id in prior,
+                    prior_work_on_asset=tech.technician_id in prior_rank,
                     jobs_that_day=jobs,
                     sla_risk=start > sla_deadline,
                     reason="",
@@ -346,15 +354,19 @@ def choose_technician(
     on_time = [o for o in options if not o.sla_risk]
     if on_time:
         best = min(
-            on_time, key=lambda o: (not o.prior_work_on_asset, o.start, o.jobs_that_day, o.technician_id)
+            on_time,
+            key=lambda o: (recency(o), o.start, o.jobs_that_day, o.technician_id),
         )
-        why = "has worked on this asset before" if best.prior_work_on_asset else "earliest eligible slot"
+        why = "worked on this asset most recently" if best.prior_work_on_asset else "earliest eligible slot"
+        if best.prior_work_on_asset and prior_rank[best.technician_id] > 0:
+            why = "has worked on this asset before"
         best.reason = (
             f"{best.technician_name} ({best.technician_id}) can be on site within the SLA and {why}."
         )
     else:
         best = min(
-            options, key=lambda o: (o.start, not o.prior_work_on_asset, o.jobs_that_day, o.technician_id)
+            options,
+            key=lambda o: (o.start, recency(o), o.jobs_that_day, o.technician_id),
         )
         best.reason = (
             f"No eligible technician can be on site before the SLA deadline; "

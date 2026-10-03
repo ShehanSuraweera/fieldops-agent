@@ -4,3 +4,5 @@ sla_hours: {gold: 4, silver: 24, bronze: 72}
 po_approval_threshold_lkr: 100000
 repeat_failure_window_days: 90
 diagnosis_min_confidence: 0.6
+# Length of the visit booked when the diagnosis is too uncertain to order parts.
+inspection_hours: 2
