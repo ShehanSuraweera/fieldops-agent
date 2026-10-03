@@ -201,3 +201,11 @@ def test_sse_streams_steps_then_status(client: TestClient) -> None:
         tail = _parse_sse(response.read().decode())
     assert [int(e["id"]) for e in tail if e["event"] == "step"] == [len(steps) - 1, len(steps)]
     assert client.get("/runs/run_missing/events").status_code == 404
+
+
+def test_metrics_endpoint(client: TestClient) -> None:
+    client.post("/runs", json={**DEMO, "now": NOW.isoformat()})
+    metrics = client.get("/metrics").json()
+    assert metrics["finished_runs"] >= 1
+    assert 0 <= metrics["auto_resolved_rate"] <= 1
+    assert metrics["avg_tokens_per_run"] > 0

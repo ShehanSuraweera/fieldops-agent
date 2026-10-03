@@ -18,6 +18,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.checkpoint import postgres_checkpointer
 from app.config import parse_now, settings
 from app.graph import Agent, RunNotPaused
+from app.metrics import Metrics, compute_metrics
 from app.recorder import jsonable
 from app.store import RunRecord, SqlRunStore, StepRecord
 
@@ -150,6 +151,12 @@ def list_runs(
     agent: Agent = Depends(get_agent),
 ) -> list[RunRecord]:
     return [run.model_copy(update={"final_state": None}) for run in agent.store.list_runs(limit, status)]
+
+
+@app.get("/metrics", response_model=Metrics, tags=["Runs"], dependencies=protected)
+def metrics(agent: Agent = Depends(get_agent)) -> Metrics:
+    """KPIs for the dashboard: auto-resolved rate, time to schedule, approval rate, tokens."""
+    return compute_metrics(agent.store.list_runs(limit=100_000))
 
 
 @app.get("/runs/{run_id}", response_model=RunDetail, tags=["Runs"], dependencies=protected)

@@ -4,12 +4,13 @@ An autonomous AI agent that runs CoolTech Services' field service process (from 
 complaint to a booked technician) across mock CRM, ERP and FSM systems. It is built in seven phases,
 from mock enterprise systems up to an MCP server and dashboard.
 
-**Status:** Phases 1–5 are complete:
+**Status:** Phases 1–6 are complete:
 - mock enterprise systems
 - business rules and tools
 - the agent graph, with its API and CLI
 - manager approval of large purchase orders (runs pause, survive restarts and resume)
 - 30 end-to-end eval scenarios, with CI
+- a Next.js dashboard: new tickets, live run timelines, the approvals inbox and KPIs
 
 ## What exists so far
 
@@ -27,6 +28,7 @@ from mock enterprise systems up to an MCP server and dashboard.
 | Agent API and CLI | `services/agent/app/api.py`, `cli.py` | API docs at <http://localhost:8002/docs>; the CLI prints the step trace |
 | Human approval | `nodes/parts.py` (`approve_po`), `checkpoint.py` | POs over LKR 100,000 pause the run with LangGraph `interrupt()`; state is checkpointed in Postgres |
 | Live events | `GET /runs/{id}/events` | Server-Sent Events: one event per step, then the final or paused status |
+| Dashboard | `web/` (Next.js, TypeScript, Tailwind, TanStack Query) | <http://localhost:3000>; a server-side proxy keeps the API keys out of the browser |
 
 The LLM reads the complaint, picks a fault code from the catalog and words the customer messages. Plain
 Python decides everything else: priority, SLA, warranty, vendor, PO approval, technician, dates and money.
@@ -40,15 +42,35 @@ cp .env.example .env            # then set GEMINI_API_KEY (or another provider's
 docker compose up -d --build --wait
 ```
 
-This starts Postgres, the enterprise mock on <http://localhost:8001> and the agent API on
-<http://localhost:8002>. Only the agent's runs need an LLM key; the rest works without one. On first
-start, the mock migrates the database and seeds it. Later restarts keep existing data.
+This starts Postgres, the enterprise mock on <http://localhost:8001>, the agent API on
+<http://localhost:8002> and the **dashboard on <http://localhost:3000>**. Only the agent's runs need an LLM
+key; the rest works without one. On first start, the mock migrates the database and seeds it. Later
+restarts keep existing data.
 
 - Mock API docs: <http://localhost:8001/docs> (header `X-API-Key: dev-mock-key`, set by `MOCK_API_KEY`)
 - Agent API docs: <http://localhost:8002/docs> (header `X-API-Key: dev-agent-key`, set by `AGENT_API_KEY`)
 - Errors always have the shape `{"error": {"code", "message", "details"}}`.
 
-### Run the FreshMart demo
+### Demo in the browser
+
+Open <http://localhost:3000>:
+
+1. **New ticket.** Click **Reset demo data**. Keep **Demo clock** ticked, which runs as if it is 09:00
+   today (Monday if today is Sunday).
+2. Pick **FreshMart demo** and click **Start run**. The run view streams each step live: nodes, tool
+   calls and LLM calls. Click any step to see its input and output. The outcome card shows TECH-02
+   booked at 10:00 with the compressor reserved.
+3. Go back, pick **Big PO: needs approval** and start it. The run pauses, and the **Approvals** tab shows
+   a badge. The inbox lists the PO, why that vendor was chosen and the diagnosis reasoning.
+4. Approve (or reject) it, either in the inbox or on the run page. The run resumes live: approve books
+   the visit after delivery, reject books an inspection and flags manual procurement.
+5. **Runs** shows every run, with KPI cards that refresh every few seconds:
+   - **Auto-resolved:** scheduled with no human step, out of all finished runs
+   - **Avg time to schedule:** from complaint to booked visit, including approval waits
+   - **Approval rate:** POs approved, out of all manager decisions
+   - **Avg tokens per run**
+
+### Run the FreshMart demo from the terminal
 
 The demo is deterministic. On the seed date, TECH-02 is always free from 10:00 to 16:00, so pin the
 agent's clock to 09:00 that day. Pick a date that is not a Sunday, because there are no Sunday shifts.
@@ -144,7 +166,8 @@ clear-cut. Vague complaints should become inspection visits.
 
 `.github/workflows/ci.yml`:
 
-- **Every push and PR:** ruff, plus the mock, agent and eval-runner test suites. They run on Python 3.12
+- **Every push and PR:** ruff, plus the mock, agent and eval-runner test suites, and the dashboard's
+  lint, type-check and build. They run on Python 3.12
   against a Postgres service container and need no LLM key.
 - **Manual "Run workflow":** starts the full stack with Docker Compose, runs the 30 evals with the
   `GEMINI_API_KEY` repository secret, fails below the minimum pass rate (default 85%) and uploads the
@@ -168,6 +191,7 @@ newest history record is `COMP_FAIL`, 60 days before the seed date, done by `TEC
 docker compose build
 docker compose run --rm enterprise_mock pytest
 docker compose run --rm agent pytest
+(cd web && npm ci && npm run lint && npm run typecheck && npm run build)   # dashboard checks; needs Node 20.9+
 docker compose --profile evals run --rm --no-deps --entrypoint pytest evals test_run_evals.py
 docker compose run --rm enterprise_mock sh -c "ruff check . && ruff format --check ."
 docker compose run --rm agent sh -c "ruff check . && ruff format --check ."

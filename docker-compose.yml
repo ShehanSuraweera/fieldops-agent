@@ -65,6 +65,24 @@ services:
       timeout: 3s
       retries: 20
 
+  web:
+    build: ./web
+    environment:
+      AGENT_URL: http://agent:8000
+      AGENT_API_KEY: ${AGENT_API_KEY:-dev-agent-key}
+      MOCK_URL: http://enterprise_mock:8000
+      MOCK_API_KEY: ${MOCK_API_KEY:-dev-mock-key}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      agent:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   # Eval runner: docker compose run --rm evals [--only ID] [--delay 10] [--min-pass-rate 0.85]
   evals:
     image: fieldops-agent-agent
