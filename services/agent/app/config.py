@@ -26,6 +26,9 @@ class Settings:
     database_url: str
     api_key: str
     fixed_now: datetime | None  # AGENT_NOW pins the agent's clock (demos, evals)
+    tool_transport: str  # "rest" calls the mock APIs directly; "mcp" goes through the MCP server
+    mcp_url: str
+    mcp_api_key: str
 
 
 def load_settings() -> Settings:
@@ -38,6 +41,9 @@ def load_settings() -> Settings:
         ),
         api_key=os.environ.get("AGENT_API_KEY", "dev-agent-key"),
         fixed_now=parse_now(os.environ.get("AGENT_NOW")),
+        tool_transport=(os.environ.get("TOOL_TRANSPORT") or "rest").strip().lower(),
+        mcp_url=os.environ.get("MCP_URL", "http://localhost:8003/mcp"),
+        mcp_api_key=os.environ.get("MCP_API_KEY", "dev-mcp-key"),
     )
 
 

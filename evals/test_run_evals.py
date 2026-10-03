@@ -146,3 +146,16 @@ def test_summary_and_markdown_report() -> None:
     markdown = render_markdown(report)
     assert "**Overall pass rate: 50.0%**" in markdown
     assert "`priority`: expected `P1`, got `P2`" in markdown
+
+
+def test_reports_are_labelled_by_transport_and_chaos(tmp_path) -> None:
+    base = {"started_at": "2026-10-03T10:00:00Z", "seed_date": "2026-10-01"}
+    mcp = summarize([], {**base, "tool_transport": "mcp", "chaos": {"enabled": False}})
+    chaos = summarize([], {**base, "tool_transport": "rest", "chaos": {"enabled": True, "error_rate": 0.1}})
+    assert run_evals.report_label(mcp) == "mcp"
+    assert run_evals.report_label(chaos) == "rest-chaos"
+    names = {p.name for p in run_evals.write_reports(mcp, tmp_path)}
+    assert {"latest-mcp.md", "latest-mcp.json"} <= names
+    assert "latest.md" not in names  # each setup keeps its own report; no ambiguous "latest"
+    assert "Tool transport: mcp" in render_markdown(mcp)
+    assert "chaos mode on" in render_markdown(chaos)

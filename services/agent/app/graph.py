@@ -22,7 +22,7 @@ from langgraph.errors import GraphInterrupt
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command
 
-from app.config import agent_now, now_lk
+from app.config import agent_now, now_lk, settings
 from app.llm import LLMError, LLMProvider, StructuredLLM, provider_from_env
 from app.nodes.assess import assess_asset
 from app.nodes.common import Deps, NodeFailure, fail
@@ -158,6 +158,19 @@ def build_summary(state: TicketState) -> dict[str, Any]:
     }
 
 
+def default_tools_factory(transport: str, rules: RulesConfig) -> Callable[[Callable[[], datetime]], Any]:
+    """TOOL_TRANSPORT=rest calls the mock APIs over HTTP; mcp calls the same tools on the MCP server."""
+    if transport == "mcp":
+        from app.mcp_tools import McpConnection, McpTools, http_client_factory
+
+        connection = McpConnection(http_client_factory())
+        return lambda clock: McpTools(connection, clock)
+    if transport != "rest":
+        raise ValueError(f"TOOL_TRANSPORT must be 'rest' or 'mcp', got {transport!r}")
+    client = EnterpriseClient()
+    return lambda clock: EnterpriseTools(client, rules, clock)
+
+
 class Agent:
     """Creates runs, executes the graph, pauses for approval, resumes and records outcomes."""
 
@@ -176,9 +189,9 @@ class Agent:
         self.checkpointer = checkpointer or InMemorySaver()
         self._provider = provider
         self._provider_factory = provider_factory
+        self.transport = "custom" if tools_factory else settings.tool_transport
         if tools_factory is None:
-            client = EnterpriseClient()
-            tools_factory = lambda clock: EnterpriseTools(client, self.rules, clock)  # noqa: E731
+            tools_factory = default_tools_factory(settings.tool_transport, self.rules)
         self._tools_factory = tools_factory
 
     def start(self, customer_email: str, text: str, now: datetime | None = None) -> str:

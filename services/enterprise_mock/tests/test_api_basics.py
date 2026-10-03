@@ -29,7 +29,9 @@ EXPECTED_OPERATIONS = {
 
 
 def test_health_needs_no_key(anon_client: TestClient) -> None:
-    assert anon_client.get("/health").json() == {"status": "ok"}
+    health = anon_client.get("/health").json()
+    assert health["status"] == "ok"
+    assert health["chaos"]["enabled"] is False
 
 
 def test_missing_api_key_is_401(anon_client: TestClient) -> None:

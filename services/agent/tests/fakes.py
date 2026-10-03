@@ -264,14 +264,15 @@ class FakeEnterprise:
         ]
         return _ok(found)
 
-    def get_asset_summary(self, asset_id: str) -> ToolResult:
+    def get_asset_summary(self, asset_id: str, as_of: date | None = None) -> ToolResult:
         asset = next((a for a in self.assets if a.id == asset_id), None)
         if asset is None:
             return _err("not_found", f"asset '{asset_id}' not found")
         history = sorted(
             (h for h in self.history if h.asset_id == asset_id), key=lambda h: h.date, reverse=True
         )
-        facts = compute_asset_facts(asset, history, self.clock().date(), RULES)
+        self.last_as_of = as_of
+        facts = compute_asset_facts(asset, history, as_of or self.clock().date(), RULES)
         return _ok(AssetSummary(asset=asset, facts=facts, recent_history=history[:5]))
 
     def list_fault_codes(self, model: str) -> ToolResult:

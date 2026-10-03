@@ -1,0 +1,6 @@
+# Only what the enterprise tools need; the code is the agent's app/ package.
+httpx>=0.27
+pydantic>=2.7
+pyyaml>=6
+mcp>=2.3
+uvicorn>=0.30

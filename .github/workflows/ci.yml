@@ -11,6 +11,11 @@ on:
       delay:
         description: "Seconds between scenarios (LLM rate limits)"
         default: "10"
+      transport:
+        description: "How the agent reaches the enterprise tools"
+        type: choice
+        options: [rest, mcp]
+        default: rest
 
 jobs:
   tests:
@@ -90,13 +95,14 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
 
   evals:
-    name: evals (30 scenarios, real LLM)
+    name: evals (30 scenarios, real LLM, ${{ inputs.transport }} transport)
     if: github.event_name == 'workflow_dispatch'
     needs: [tests, eval-runner]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      TOOL_TRANSPORT: ${{ inputs.transport }}
     steps:
       - uses: actions/checkout@v4
       - name: Check the LLM key secret

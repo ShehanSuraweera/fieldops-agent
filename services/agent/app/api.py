@@ -131,7 +131,7 @@ protected = [Depends(require_api_key)]
 
 @app.get("/health", tags=["Ops"])
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "tool_transport": settings.tool_transport}
 
 
 @app.post("/runs", response_model=RunAccepted, status_code=202, tags=["Runs"], dependencies=protected)

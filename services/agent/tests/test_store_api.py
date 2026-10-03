@@ -63,7 +63,7 @@ def test_api_requires_key(agent: Agent) -> None:
         response = anon.get("/runs")
         assert response.status_code == 401
         assert response.json()["error"]["code"] == "unauthorized"
-        assert anon.get("/health").json() == {"status": "ok"}
+        assert anon.get("/health").json() == {"status": "ok", "tool_transport": "rest"}
     app.dependency_overrides.clear()
 
 

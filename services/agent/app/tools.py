@@ -15,7 +15,7 @@ Retry policy (10 s timeout, up to 2 retries with exponential backoff):
 
 import time
 from collections.abc import Callable
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 import httpx
@@ -69,8 +69,12 @@ class ToolResult[T](BaseModel):
         return cls(ok=False, error=error)
 
     def compact(self) -> dict[str, Any]:
-        """JSON-ready dict for logs and LLM context."""
+        """JSON-ready dict for logs and LLM context (None fields dropped)."""
         return self.model_dump(mode="json", exclude_none=True)
+
+    def as_json(self) -> dict[str, Any]:
+        """Complete JSON-ready dict, None fields included, for other services (the MCP server)."""
+        return self.model_dump(mode="json")
 
 
 class AssetSummary(BaseModel):
@@ -251,15 +255,19 @@ class EnterpriseTools:
         """Match a description like "Freezer #3" to assets. May return several candidates."""
         return self._call(list[Asset], "GET", "/fsm/assets", params={"customer_id": customer_id, "q": query})
 
-    def get_asset_summary(self, asset_id: str) -> ToolResult[AssetSummary]:
-        """Asset, recent history and rule-computed facts (warranty, repeat failure, age...)."""
+    def get_asset_summary(self, asset_id: str, as_of: date | None = None) -> ToolResult[AssetSummary]:
+        """Asset, recent history and rule-computed facts (warranty, repeat failure, age...).
+
+        Facts are computed as of ``as_of`` (default: this tool set's clock), so a remote
+        caller can ask for the facts on its own business date.
+        """
         asset = self._call(Asset, "GET", f"/fsm/assets/{asset_id}")
         if not asset.ok:
             return ToolResult.failure(asset.error)
         history = self._call(list[ServiceRecord], "GET", f"/fsm/assets/{asset_id}/history")
         if not history.ok:
             return ToolResult.failure(history.error)
-        facts = compute_asset_facts(asset.data, history.data, self.clock().date(), self.rules)
+        facts = compute_asset_facts(asset.data, history.data, as_of or self.clock().date(), self.rules)
         return ToolResult.success(
             AssetSummary(asset=asset.data, facts=facts, recent_history=history.data[:HISTORY_IN_SUMMARY])
         )

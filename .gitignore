@@ -12,5 +12,5 @@ SPEC.md
 
 # Eval reports: keep only the latest run in git
 evals/results/*
-!evals/results/latest.md
-!evals/results/latest.json
+!evals/results/latest-*.md
+!evals/results/latest-*.json

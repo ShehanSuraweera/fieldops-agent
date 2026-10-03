@@ -6,7 +6,8 @@ For each scenario in scenarios/*.yaml:
   3. if the run pauses for approval, answer with the scenario's approval_decision,
   4. compare each expected field with the run summary.
 
-Writes results/<timestamp>.{md,json} and results/latest.{md,json}.
+Writes results/<timestamp>-<label>.{md,json} and results/latest-<label>.{md,json}, where the label is
+the tool transport, plus '-chaos' when the mock injects failures (e.g. rest, mcp, rest-chaos).
 
     python run_evals.py                          # all scenarios
     python run_evals.py --only demo-freshmart    # one scenario (id prefix)
@@ -119,6 +120,12 @@ class EvalClient:
         self.agent = httpx.Client(base_url=agent_url, headers={"X-API-Key": agent_key}, timeout=30)
         self.mock = httpx.Client(base_url=mock_url, headers={"X-API-Key": mock_key}, timeout=60)
         self.timeout_s = timeout_s
+
+    def environment(self) -> dict[str, Any]:
+        """Which tool transport the agent uses and whether the mock injects chaos."""
+        agent = self.agent.get("/health").json()
+        mock = self.mock.get("/health").json()
+        return {"tool_transport": agent.get("tool_transport", "rest"), "chaos": mock.get("chaos", {})}
 
     def reseed(self) -> None:
         self.mock.post("/admin/reseed", json={"today": SEED_DATE}).raise_for_status()
@@ -244,6 +251,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         f"- Run at: {report['started_at']} ({report['scenarios']} scenarios, seed {report['seed_date']})",
         f"- LLM: {report.get('llm', 'unknown')}",
+        f"- Tool transport: {report.get('tool_transport', 'rest')}"
+        + (f" · chaos mode on ({report['chaos']})" if (report.get("chaos") or {}).get("enabled") else ""),
         f"- **Overall pass rate: {_pct(report['overall_pass_rate'])}** "
         f"({report['passed']}/{report['scenarios']} scenarios with every expected field correct)",
         f"- Field accuracy: {_pct(report['field_accuracy'])}",
@@ -291,13 +300,19 @@ def render_markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def report_label(report: dict[str, Any]) -> str:
+    """e.g. 'rest', 'mcp' or 'rest-chaos': each setup keeps its own latest report."""
+    label = report.get("tool_transport", "rest")
+    return f"{label}-chaos" if (report.get("chaos") or {}).get("enabled") else label
+
+
 def write_reports(report: dict[str, Any], out_dir: Path) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     stamp = report["started_at"].replace(":", "").replace("-", "")[:15]
     markdown = render_markdown(report)
     body = json.dumps(report, indent=2, ensure_ascii=False, default=str)
     paths = []
-    for name in (stamp, "latest"):
+    for name in (f"{stamp}-{report_label(report)}", f"latest-{report_label(report)}"):
         (out_dir / f"{name}.md").write_text(markdown, encoding="utf-8")
         (out_dir / f"{name}.json").write_text(body, encoding="utf-8")
         paths += [out_dir / f"{name}.md", out_dir / f"{name}.json"]
@@ -340,7 +355,9 @@ def main(argv: list[str] | None = None) -> int:
         "seed_date": SEED_DATE,
         "run_clock": RUN_CLOCK,
         "llm": f"{os.environ.get('LLM_PROVIDER') or 'gemini'}/{os.environ.get('LLM_MODEL') or 'default'}",
+        **client.environment(),
     }
+    print(f"Tool transport: {meta['tool_transport']}; chaos: {meta['chaos']}")
     results = []
     for index, scenario in enumerate(scenarios, 1):
         if index > 1 and args.delay:

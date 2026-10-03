@@ -24,10 +24,38 @@ services:
       SEED_TODAY: ${SEED_TODAY:-}
       # Enables POST /admin/reseed, which the eval runner uses. Turn off outside dev and CI.
       MOCK_ADMIN_ENABLED: ${MOCK_ADMIN_ENABLED:-true}
+      # Random latency and 503s on CRM/FSM/ERP calls, to show the agent's retry policy at work.
+      CHAOS_MODE: ${CHAOS_MODE:-false}
+      CHAOS_ERROR_RATE: ${CHAOS_ERROR_RATE:-0.1}
+      CHAOS_MAX_LATENCY_MS: ${CHAOS_MAX_LATENCY_MS:-800}
+      CHAOS_SEED: ${CHAOS_SEED:-}
     ports:
       - "${MOCK_PORT:-8001}:8000"
     depends_on:
       postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # The enterprise tools over MCP (Streamable HTTP at /mcp). Same tools as the agent's REST client.
+  mcp_server:
+    build:
+      context: ./services
+      dockerfile: mcp_server/Dockerfile
+    environment:
+      MOCK_BASE_URL: http://enterprise_mock:8000
+      MOCK_API_KEY: ${MOCK_API_KEY:-dev-mock-key}
+      MCP_API_KEY: ${MCP_API_KEY:-dev-mcp-key}
+      RULES_PATH: /config/rules.yaml
+    ports:
+      - "${MCP_PORT:-8003}:8000"
+    volumes:
+      - ./config:/config:ro
+    depends_on:
+      enterprise_mock:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
@@ -45,6 +73,10 @@ services:
       RULES_PATH: /config/rules.yaml
       AGENT_API_KEY: ${AGENT_API_KEY:-dev-agent-key}
       AGENT_NOW: ${AGENT_NOW:-}
+      # rest: call the mock APIs directly; mcp: call the same tools through mcp_server
+      TOOL_TRANSPORT: ${TOOL_TRANSPORT:-rest}
+      MCP_URL: http://mcp_server:8000/mcp
+      MCP_API_KEY: ${MCP_API_KEY:-dev-mcp-key}
       LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
       LLM_MODEL: ${LLM_MODEL:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
@@ -58,6 +90,8 @@ services:
       postgres:
         condition: service_healthy
       enterprise_mock:
+        condition: service_healthy
+      mcp_server:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]

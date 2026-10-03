@@ -3,6 +3,7 @@
 from fastapi import Depends, FastAPI
 
 from app.admin import router as admin_router
+from app.chaos import ChaosMiddleware, ChaosSettings
 from app.crm.router import router as crm_router
 from app.erp.router import router as erp_router
 from app.errors import ERROR_RESPONSES, register_error_handlers
@@ -19,6 +20,8 @@ app = FastAPI(
     ),
 )
 register_error_handlers(app)
+CHAOS = ChaosSettings.from_env()
+app.add_middleware(ChaosMiddleware, chaos=CHAOS)
 
 for prefix, router, tag in (
     ("/crm", crm_router, "CRM"),
@@ -36,5 +39,5 @@ for prefix, router, tag in (
 
 
 @app.get("/health", tags=["Ops"])
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+def health() -> dict[str, object]:
+    return {"status": "ok", "chaos": CHAOS.public()}

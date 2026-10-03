@@ -1,32 +1,38 @@
 {
-  "started_at": "2026-10-03T06:46:02Z",
+  "started_at": "2026-10-03T08:53:11Z",
   "seed_date": "2026-10-01",
   "run_clock": "2026-10-01T09:00:00+05:30",
   "llm": "gemini/gemini-3.5-flash-lite",
+  "tool_transport": "rest",
+  "chaos": {
+    "enabled": true,
+    "error_rate": 0.1,
+    "max_latency_ms": 800
+  },
   "scenarios": 30,
-  "passed": 30,
-  "overall_pass_rate": 1.0,
-  "field_accuracy": 1.0,
+  "passed": 19,
+  "overall_pass_rate": 0.6333,
+  "field_accuracy": 0.773,
   "per_field": {
     "approval_required": {
       "checked": 14,
-      "passed": 14,
-      "pass_rate": 1.0
+      "passed": 10,
+      "pass_rate": 0.7143
     },
     "asset_id": {
       "checked": 30,
-      "passed": 30,
-      "pass_rate": 1.0
+      "passed": 26,
+      "pass_rate": 0.8667
     },
     "fault_code": {
       "checked": 23,
-      "passed": 23,
-      "pass_rate": 1.0
+      "passed": 18,
+      "pass_rate": 0.7826
     },
     "final_status": {
       "checked": 30,
-      "passed": 30,
-      "pass_rate": 1.0
+      "passed": 19,
+      "pass_rate": 0.6333
     },
     "inspection": {
       "checked": 3,
@@ -35,60 +41,60 @@
     },
     "po_created": {
       "checked": 30,
-      "passed": 30,
-      "pass_rate": 1.0
+      "passed": 26,
+      "pass_rate": 0.8667
     },
     "priority": {
       "checked": 25,
-      "passed": 25,
-      "pass_rate": 1.0
+      "passed": 21,
+      "pass_rate": 0.84
     },
     "sla_risk": {
       "checked": 4,
-      "passed": 4,
-      "pass_rate": 1.0
+      "passed": 3,
+      "pass_rate": 0.75
     },
     "technician_id": {
       "checked": 23,
-      "passed": 23,
-      "pass_rate": 1.0
+      "passed": 15,
+      "pass_rate": 0.6522
     },
     "warranty_claim": {
       "checked": 3,
-      "passed": 3,
-      "pass_rate": 1.0
+      "passed": 2,
+      "pass_rate": 0.6667
     }
   },
   "per_group": {
     "in_stock": {
       "scenarios": 8,
-      "passed": 8,
-      "pass_rate": 1.0
+      "passed": 5,
+      "pass_rate": 0.625
     },
     "po_under_threshold": {
       "scenarios": 5,
-      "passed": 5,
-      "pass_rate": 1.0
+      "passed": 4,
+      "pass_rate": 0.8
     },
     "po_over_threshold": {
       "scenarios": 5,
-      "passed": 5,
-      "pass_rate": 1.0
+      "passed": 1,
+      "pass_rate": 0.2
     },
     "ambiguous_asset": {
       "scenarios": 3,
-      "passed": 3,
-      "pass_rate": 1.0
+      "passed": 2,
+      "pass_rate": 0.6667
     },
     "low_confidence": {
       "scenarios": 3,
-      "passed": 3,
-      "pass_rate": 1.0
+      "passed": 2,
+      "pass_rate": 0.6667
     },
     "warranty_claim": {
       "scenarios": 3,
-      "passed": 3,
-      "pass_rate": 1.0
+      "passed": 2,
+      "pass_rate": 0.6667
     },
     "no_technician_in_sla": {
       "scenarios": 2,
@@ -101,30 +107,30 @@
       "pass_rate": 1.0
     }
   },
-  "tool_calls": 467,
-  "tool_call_errors": 1,
-  "avg_latency_s": 3.68,
-  "avg_tokens_per_run": 1896,
+  "tool_calls": 383,
+  "tool_call_errors": 12,
+  "avg_latency_s": 9.33,
+  "avg_tokens_per_run": 1641,
   "results": [
     {
       "id": "demo-freshmart-freezer3-repeat-compressor",
       "group": "in_stock",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "FRZ-1043",
-          "actual": "FRZ-1043",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "fault_code": {
           "expected": "COMP_FAIL",
-          "actual": "COMP_FAIL",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "priority": {
           "expected": "P1",
-          "actual": "P1",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "po_created": {
           "expected": false,
@@ -138,27 +144,29 @@
         },
         "technician_id": {
           "expected": "TECH-02",
-          "actual": "TECH-02",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "final_status": {
           "expected": "scheduled",
-          "actual": "scheduled",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_03a8c22bbd1f",
-      "status": "scheduled",
-      "latency_s": 4.27,
-      "tokens": 2094,
-      "tool_calls": 17,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_63e9fcfdb886",
+      "status": "needs_human",
+      "latency_s": 2.13,
+      "tokens": 540,
+      "tool_calls": 2,
+      "tool_errors": [
+        "create_ticket: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "intake: create_ticket failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "harbour-chiller1-drain-leak",
       "group": "in_stock",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "CHL-1010",
@@ -182,22 +190,24 @@
         },
         "technician_id": {
           "expected": "TECH-02",
-          "actual": "TECH-02",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "final_status": {
           "expected": "scheduled",
-          "actual": "scheduled",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_56f2674e04ef",
-      "status": "scheduled",
-      "latency_s": 4.08,
-      "tokens": 2099,
-      "tool_calls": 14,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_78e006a9f4b0",
+      "status": "needs_human",
+      "latency_s": 8.65,
+      "tokens": 1699,
+      "tool_calls": 13,
+      "tool_errors": [
+        "create_work_order: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "schedule: create_work_order failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "citygrocers-chiller2-door-gasket",
@@ -235,9 +245,9 @@
           "ok": true
         }
       },
-      "run_id": "run_562d17f29416",
+      "run_id": "run_fd981a988bc1",
       "status": "scheduled",
-      "latency_s": 4.07,
+      "latency_s": 11.19,
       "tokens": 2004,
       "tool_calls": 16,
       "tool_errors": [],
@@ -279,10 +289,10 @@
           "ok": true
         }
       },
-      "run_id": "run_f0879078f1b7",
+      "run_id": "run_ab4ab6bb0d84",
       "status": "scheduled",
-      "latency_s": 4.08,
-      "tokens": 2031,
+      "latency_s": 8.13,
+      "tokens": 2036,
       "tool_calls": 14,
       "tool_errors": [],
       "error": null
@@ -323,10 +333,10 @@
           "ok": true
         }
       },
-      "run_id": "run_203b497cc0fe",
+      "run_id": "run_93e0c191f2d0",
       "status": "scheduled",
-      "latency_s": 4.07,
-      "tokens": 1970,
+      "latency_s": 11.71,
+      "tokens": 1956,
       "tool_calls": 17,
       "tool_errors": [],
       "error": null
@@ -367,10 +377,10 @@
           "ok": true
         }
       },
-      "run_id": "run_ddadbb35ee8e",
+      "run_id": "run_26c5af440b56",
       "status": "scheduled",
-      "latency_s": 3.59,
-      "tokens": 2193,
+      "latency_s": 11.19,
+      "tokens": 2183,
       "tool_calls": 15,
       "tool_errors": [],
       "error": null
@@ -378,22 +388,22 @@
     {
       "id": "southernsuper-chiller2-compressor",
       "group": "in_stock",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "CHL-1027",
-          "actual": "CHL-1027",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "fault_code": {
           "expected": "COMP_FAIL",
-          "actual": "COMP_FAIL",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "priority": {
           "expected": "P2",
-          "actual": "P2",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "po_created": {
           "expected": false,
@@ -402,22 +412,24 @@
         },
         "technician_id": {
           "expected": "TECH-06",
-          "actual": "TECH-06",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "final_status": {
           "expected": "scheduled",
-          "actual": "scheduled",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_c9ee15c29108",
-      "status": "scheduled",
-      "latency_s": 3.56,
-      "tokens": 2139,
-      "tool_calls": 17,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_e59c1d84e94b",
+      "status": "needs_human",
+      "latency_s": 2.04,
+      "tokens": 584,
+      "tool_calls": 2,
+      "tool_errors": [
+        "create_ticket: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "intake: create_ticket failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "kandycold-freezer1-defrost-heater",
@@ -455,10 +467,10 @@
           "ok": true
         }
       },
-      "run_id": "run_d045e32d5aa4",
+      "run_id": "run_077eadd055c9",
       "status": "scheduled",
-      "latency_s": 3.57,
-      "tokens": 2090,
+      "latency_s": 11.2,
+      "tokens": 2098,
       "tool_calls": 15,
       "tool_errors": [],
       "error": null
@@ -504,10 +516,10 @@
           "ok": true
         }
       },
-      "run_id": "run_834eef354895",
+      "run_id": "run_c6f53300f4d6",
       "status": "scheduled",
-      "latency_s": 4.09,
-      "tokens": 2068,
+      "latency_s": 11.18,
+      "tokens": 2070,
       "tool_calls": 18,
       "tool_errors": [],
       "error": null
@@ -558,9 +570,9 @@
           "ok": true
         }
       },
-      "run_id": "run_c66f6ec95b49",
+      "run_id": "run_29eedda1f0a5",
       "status": "scheduled",
-      "latency_s": 3.07,
+      "latency_s": 13.26,
       "tokens": 2157,
       "tool_calls": 18,
       "tool_errors": [],
@@ -607,10 +619,10 @@
           "ok": true
         }
       },
-      "run_id": "run_498de0869f74",
+      "run_id": "run_89452b0b7e0b",
       "status": "scheduled",
-      "latency_s": 4.08,
-      "tokens": 2099,
+      "latency_s": 10.69,
+      "tokens": 2120,
       "tool_calls": 20,
       "tool_errors": [],
       "error": null
@@ -618,7 +630,7 @@
     {
       "id": "rockhill-freezer2-door-gasket-po",
       "group": "po_under_threshold",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "FRZ-1045",
@@ -652,17 +664,19 @@
         },
         "final_status": {
           "expected": "scheduled",
-          "actual": "scheduled",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_e24489052943",
-      "status": "scheduled",
-      "latency_s": 3.57,
-      "tokens": 2095,
+      "run_id": "run_8e87a5dbf088",
+      "status": "needs_human",
+      "latency_s": 11.2,
+      "tokens": 2097,
       "tool_calls": 19,
-      "tool_errors": [],
-      "error": null
+      "tool_errors": [
+        "send_customer_message: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "finalize: send_customer_message failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "templeroad-freezer1-refrigerant-leak-po",
@@ -705,10 +719,10 @@
           "ok": true
         }
       },
-      "run_id": "run_5eefff9f5e45",
+      "run_id": "run_4cf382c34033",
       "status": "scheduled",
-      "latency_s": 3.57,
-      "tokens": 2264,
+      "latency_s": 10.67,
+      "tokens": 2263,
       "tool_calls": 21,
       "tool_errors": [],
       "error": null
@@ -716,7 +730,7 @@
     {
       "id": "kandycold-freezer1-compressor-approve",
       "group": "po_over_threshold",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "FRZ-1019",
@@ -725,8 +739,8 @@
         },
         "fault_code": {
           "expected": "COMP_FAIL",
-          "actual": "COMP_FAIL",
-          "ok": true
+          "actual": "START_RELAY",
+          "ok": false
         },
         "priority": {
           "expected": "P2",
@@ -740,32 +754,34 @@
         },
         "approval_required": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         },
         "technician_id": {
           "expected": "TECH-04",
-          "actual": "TECH-04",
-          "ok": true
+          "actual": "TECH-05",
+          "ok": false
         },
         "final_status": {
           "expected": "scheduled",
-          "actual": "scheduled",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_67b164404232",
-      "status": "scheduled",
-      "latency_s": 4.1,
-      "tokens": 2042,
-      "tool_calls": 22,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_31705aed38a6",
+      "status": "needs_human",
+      "latency_s": 12.19,
+      "tokens": 2055,
+      "tool_calls": 20,
+      "tool_errors": [
+        "send_customer_message: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "finalize: send_customer_message failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "peradeniya-freezer1-kandycity-compressor-reject",
       "group": "po_over_threshold",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "FRZ-1018",
@@ -784,32 +800,34 @@
         },
         "po_created": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         },
         "approval_required": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         },
         "technician_id": {
           "expected": "TECH-04",
-          "actual": "TECH-04",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "final_status": {
           "expected": "needs_manual_procurement",
-          "actual": "needs_manual_procurement",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_6e29a3076448",
-      "status": "needs_manual_procurement",
-      "latency_s": 4.1,
-      "tokens": 2269,
-      "tool_calls": 22,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_531a59554cec",
+      "status": "needs_human",
+      "latency_s": 12.19,
+      "tokens": 1804,
+      "tool_calls": 15,
+      "tool_errors": [
+        "create_purchase_order: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "procure: create_purchase_order failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "citygrocers-chiller2-control-board-approve",
@@ -852,10 +870,10 @@
           "ok": true
         }
       },
-      "run_id": "run_b9584fd27735",
+      "run_id": "run_562ec3f1b2dd",
       "status": "scheduled",
-      "latency_s": 4.09,
-      "tokens": 2010,
+      "latency_s": 13.28,
+      "tokens": 2004,
       "tool_calls": 20,
       "tool_errors": [],
       "error": null
@@ -863,7 +881,7 @@
     {
       "id": "southernsuper-chiller1-compressor-reject",
       "group": "po_over_threshold",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "CHL-1026",
@@ -882,86 +900,90 @@
         },
         "po_created": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         },
         "approval_required": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         },
         "technician_id": {
           "expected": "TECH-06",
-          "actual": "TECH-06",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "final_status": {
           "expected": "needs_manual_procurement",
-          "actual": "needs_manual_procurement",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_298b14029ede",
-      "status": "needs_manual_procurement",
-      "latency_s": 4.62,
-      "tokens": 2060,
-      "tool_calls": 22,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_e01ed58cfba9",
+      "status": "needs_human",
+      "latency_s": 11.19,
+      "tokens": 1652,
+      "tool_calls": 15,
+      "tool_errors": [
+        "create_purchase_order: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "procure: create_purchase_order failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "freshmart-chiller1-control-board-approve",
       "group": "po_over_threshold",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "CHL-1044",
-          "actual": "CHL-1044",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "fault_code": {
           "expected": "CTRL_BOARD",
-          "actual": "CTRL_BOARD",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "priority": {
           "expected": "P1",
-          "actual": "P1",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "po_created": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         },
         "approval_required": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         },
         "technician_id": {
           "expected": "TECH-01",
-          "actual": "TECH-01",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "final_status": {
           "expected": "scheduled",
-          "actual": "scheduled",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         },
         "sla_risk": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         }
       },
-      "run_id": "run_4fac90e146a5",
-      "status": "scheduled",
-      "latency_s": 4.09,
-      "tokens": 1938,
-      "tool_calls": 20,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_06d224f18222",
+      "status": "needs_human",
+      "latency_s": 2.55,
+      "tokens": 556,
+      "tool_calls": 2,
+      "tool_errors": [
+        "create_ticket: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "intake: create_ticket failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "peradeniya-freezer1-ambiguous",
@@ -984,10 +1006,10 @@
           "ok": true
         }
       },
-      "run_id": "run_c4ad56ae8b4a",
+      "run_id": "run_4a0c92c52871",
       "status": "needs_info",
-      "latency_s": 2.55,
-      "tokens": 828,
+      "latency_s": 5.09,
+      "tokens": 795,
       "tool_calls": 5,
       "tool_errors": [],
       "error": null
@@ -1013,10 +1035,10 @@
           "ok": true
         }
       },
-      "run_id": "run_89068b577259",
+      "run_id": "run_bcc20108ef1d",
       "status": "needs_info",
-      "latency_s": 2.55,
-      "tokens": 795,
+      "latency_s": 4.08,
+      "tokens": 816,
       "tool_calls": 5,
       "tool_errors": [],
       "error": null
@@ -1024,7 +1046,7 @@
     {
       "id": "lankasuper-wattala-freezer-ambiguous",
       "group": "ambiguous_asset",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": null,
@@ -1038,17 +1060,19 @@
         },
         "final_status": {
           "expected": "needs_info",
-          "actual": "needs_info",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_aabc32fe78d2",
-      "status": "needs_info",
-      "latency_s": 2.54,
-      "tokens": 808,
-      "tool_calls": 5,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_7db745225e7b",
+      "status": "needs_human",
+      "latency_s": 2.04,
+      "tokens": 533,
+      "tool_calls": 2,
+      "tool_errors": [
+        "create_ticket: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "intake: create_ticket failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "freshmart-chiller1-odd-noise",
@@ -1076,10 +1100,10 @@
           "ok": true
         }
       },
-      "run_id": "run_bd883abd2eb5",
+      "run_id": "run_b6fab9d65d30",
       "status": "scheduled",
-      "latency_s": 3.05,
-      "tokens": 1896,
+      "latency_s": 12.19,
+      "tokens": 1899,
       "tool_calls": 11,
       "tool_errors": [],
       "error": null
@@ -1115,10 +1139,10 @@
           "ok": true
         }
       },
-      "run_id": "run_147dd7dbf9ba",
+      "run_id": "run_768a444fe694",
       "status": "scheduled",
-      "latency_s": 3.05,
-      "tokens": 2146,
+      "latency_s": 10.68,
+      "tokens": 2112,
       "tool_calls": 11,
       "tool_errors": [],
       "error": null
@@ -1126,7 +1150,7 @@
     {
       "id": "southernsuper-chiller2-strange",
       "group": "low_confidence",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "CHL-1027",
@@ -1150,17 +1174,19 @@
         },
         "final_status": {
           "expected": "scheduled",
-          "actual": "scheduled",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_78a873331241",
-      "status": "scheduled",
-      "latency_s": 3.56,
-      "tokens": 2021,
+      "run_id": "run_ef8e51caaa9b",
+      "status": "needs_human",
+      "latency_s": 10.69,
+      "tokens": 2030,
       "tool_calls": 11,
-      "tool_errors": [],
-      "error": null
+      "tool_errors": [
+        "send_customer_message: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "finalize: send_customer_message failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "citygrocers-chiller1-warranty-evap-fan",
@@ -1208,10 +1234,10 @@
           "ok": true
         }
       },
-      "run_id": "run_7e9ee78c2bb5",
+      "run_id": "run_09bbca32ab9e",
       "status": "scheduled",
-      "latency_s": 3.57,
-      "tokens": 2194,
+      "latency_s": 12.72,
+      "tokens": 2172,
       "tool_calls": 18,
       "tool_errors": [],
       "error": null
@@ -1219,32 +1245,32 @@
     {
       "id": "greenbasket-chiller1-warranty-condenser-fan",
       "group": "warranty_claim",
-      "passed": true,
+      "passed": false,
       "checks": {
         "asset_id": {
           "expected": "CHL-1004",
-          "actual": "CHL-1004",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "fault_code": {
           "expected": "COND_FAN",
-          "actual": "COND_FAN",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "priority": {
           "expected": "P2",
-          "actual": "P2",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "po_created": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": false,
+          "ok": false
         },
         "warranty_claim": {
           "expected": true,
-          "actual": true,
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "approval_required": {
           "expected": false,
@@ -1253,22 +1279,24 @@
         },
         "technician_id": {
           "expected": "TECH-02",
-          "actual": "TECH-02",
-          "ok": true
+          "actual": null,
+          "ok": false
         },
         "final_status": {
           "expected": "scheduled",
-          "actual": "scheduled",
-          "ok": true
+          "actual": "needs_human",
+          "ok": false
         }
       },
-      "run_id": "run_498589809154",
-      "status": "scheduled",
-      "latency_s": 4.1,
-      "tokens": 2120,
-      "tool_calls": 18,
-      "tool_errors": [],
-      "error": null
+      "run_id": "run_587180da1066",
+      "status": "needs_human",
+      "latency_s": 2.04,
+      "tokens": 598,
+      "tool_calls": 2,
+      "tool_errors": [
+        "create_ticket: chaos_injected: Injected failure (CHAOS_MODE): service temporarily unavailable"
+      ],
+      "error": "intake: create_ticket failed (chaos_injected): Injected failure (CHAOS_MODE): service temporarily unavailable"
     },
     {
       "id": "kandycold-freezer2-warranty-compressor-approve",
@@ -1316,10 +1344,10 @@
           "ok": true
         }
       },
-      "run_id": "run_3be65d858809",
+      "run_id": "run_95fe0cf884cf",
       "status": "scheduled",
-      "latency_s": 5.12,
-      "tokens": 2121,
+      "latency_s": 18.81,
+      "tokens": 2135,
       "tool_calls": 22,
       "tool_errors": [],
       "error": null
@@ -1365,10 +1393,10 @@
           "ok": true
         }
       },
-      "run_id": "run_9daf950139ae",
+      "run_id": "run_6d1669bf0e08",
       "status": "scheduled",
-      "latency_s": 4.57,
-      "tokens": 2223,
+      "latency_s": 14.75,
+      "tokens": 2182,
       "tool_calls": 17,
       "tool_errors": [],
       "error": null
@@ -1414,10 +1442,10 @@
           "ok": true
         }
       },
-      "run_id": "run_f662ff6dcc86",
+      "run_id": "run_2319230bd463",
       "status": "scheduled",
-      "latency_s": 4.57,
-      "tokens": 2111,
+      "latency_s": 11.7,
+      "tokens": 2094,
       "tool_calls": 16,
       "tool_errors": [],
       "error": null
@@ -1443,7 +1471,7 @@
           "ok": true
         }
       },
-      "run_id": "run_a30a1524a439",
+      "run_id": "run_2986bdaa2132",
       "status": "needs_human",
       "latency_s": 0.52,
       "tokens": 0,
